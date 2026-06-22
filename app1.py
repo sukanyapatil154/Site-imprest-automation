@@ -1,8 +1,10 @@
 import streamlit as st
 import pandas as pd
-import re
 
-st.set_page_config(page_title="Site Imprest Validator", layout="wide")
+st.set_page_config(
+    page_title="Site Imprest Validator",
+    layout="wide"
+)
 
 st.title("📋 Site Imprest Validation Tool")
 
@@ -14,46 +16,95 @@ uploaded_file = st.file_uploader(
 if uploaded_file:
 
     try:
-        # Read Template sheet
         df = pd.read_excel(
             uploaded_file,
             sheet_name="Template",
             header=None
         )
 
-        def extract_value(pattern):
+        def find_text_value(keyword):
             """
-            Search entire sheet and return value after ':'
+            Finds values written like:
+            Project Name: FPEL Kudligi
+            Name: Abhishek G
             """
             for row in df.values:
                 for cell in row:
                     if pd.notna(cell):
-                        text = str(cell)
 
-                        if pattern.lower() in text.lower():
+                        text = str(cell).strip()
+
+                        if keyword.lower() in text.lower():
+
                             if ":" in text:
                                 return text.split(":", 1)[1].strip()
 
             return ""
 
-        # Basic Information
-        project_name = extract_value("Project Name")
-        employee_name = extract_value("NAME")
-        employee_id = extract_value("Emp ID")
-        site_name = extract_value("Site Name")
+        def find_value_below_or_right(keyword):
+            """
+            Finds labels like:
+            Account Number | 42091673874
 
-        # Right side information
-        account_number = str(df.iloc[3, 7]) if pd.notna(df.iloc[3, 7]) else ""
-        ifsc = str(df.iloc[4, 7]) if pd.notna(df.iloc[4, 7]) else ""
-        email = str(df.iloc[5, 7]) if pd.notna(df.iloc[5, 7]) else ""
-        phone = str(df.iloc[6, 7]) if pd.notna(df.iloc[6, 7]) else ""
+            IFSC CODE      | SBIN0040092
+            """
 
+            rows, cols = df.shape
+
+            for r in range(rows):
+                for c in range(cols):
+
+                    cell = df.iloc[r, c]
+
+                    if pd.notna(cell):
+
+                        text = str(cell).strip().lower()
+
+                        if keyword.lower() in text:
+
+                            # Check right side first
+                            for next_col in range(c + 1, min(c + 4, cols)):
+                                value = df.iloc[r, next_col]
+
+                                if pd.notna(value):
+                                    return value
+
+                            # Check below
+                            for next_row in range(r + 1, min(r + 4, rows)):
+                                value = df.iloc[next_row, c]
+
+                                if pd.notna(value):
+                                    return value
+
+            return ""
+
+        # ==========================
+        # Employee Details
+        # ==========================
+
+        project_name = find_text_value("Project Name")
+        employee_name = find_text_value("NAME")
+        employee_id = find_text_value("Emp ID")
+        site_name = find_text_value("Site Name")
+
+        # ==========================
+        # Bank Details
+        # ==========================
+
+        account_number = find_value_below_or_right("Account number")
+        ifsc = find_value_below_or_right("IFSC")
+        email = find_value_below_or_right("Email")
+        phone = find_value_below_or_right("Phone")
+
+        # ==========================
         # Financial Details
-        advance_total = df.iloc[31, 4] if pd.notna(df.iloc[31, 4]) else 0
-        expenses_total = df.iloc[32, 5] if pd.notna(df.iloc[32, 5]) else 0
-        balance_on_hand = df.iloc[33, 5] if pd.notna(df.iloc[33, 5]) else 0
+        # ==========================
 
-        st.success("Template Sheet Extracted Successfully")
+        advance_total = find_value_below_or_right("Advance Total")
+        expenses_total = find_value_below_or_right("Expenses total")
+        balance_on_hand = find_value_below_or_right("Balance on hand")
+
+        st.success("✅ Template Sheet Extracted Successfully")
 
         st.subheader("📌 Employee & Site Details")
 
@@ -68,21 +119,41 @@ if uploaded_file:
         with col2:
             st.write("**Email:**", email)
             st.write("**Phone Number:**", phone)
-            st.write("**IFSC:**", ifsc)
+            st.write("**IFSC Code:**", ifsc)
             st.write("**Account Number:**", account_number)
 
         st.subheader("💰 Financial Summary")
 
-        col1, col2, col3 = st.columns(3)
+        c1, c2, c3 = st.columns(3)
 
-        with col1:
-            st.metric("Advance Total", f"₹ {advance_total:,.2f}")
+        with c1:
+            st.metric(
+                "Advance Total",
+                f"₹ {float(advance_total):,.2f}"
+            )
 
-        with col2:
-            st.metric("Expenses Total", f"₹ {expenses_total:,.2f}")
+        with c2:
+            st.metric(
+                "Expenses Total",
+                f"₹ {float(expenses_total):,.2f}"
+            )
 
-        with col3:
-            st.metric("Balance On Hand", f"₹ {balance_on_hand:,.2f}")
+        with c3:
+            st.metric(
+                "Balance On Hand",
+                f"₹ {float(balance_on_hand):,.2f}"
+            )
+
+        # ==========================
+        # Show Available Sheets
+        # ==========================
+
+        excel_file = pd.ExcelFile(uploaded_file)
+
+        st.subheader("📄 Available Sheets")
+
+        for sheet in excel_file.sheet_names:
+            st.write("•", sheet)
 
     except Exception as e:
-        st.error(f"Error reading file: {e}")
+        st.error(f"❌ Error: {e}")
