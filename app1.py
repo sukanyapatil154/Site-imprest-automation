@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 
 st.set_page_config(
-    page_title="Site Imprest Validator",
+    page_title="Site Imprest Validation Tool",
     layout="wide"
 )
 
@@ -16,111 +16,97 @@ uploaded_file = st.file_uploader(
 if uploaded_file:
 
     try:
-        # =========================
+
+        # ==========================
         # Read Template Sheet
-        # =========================
+        # ==========================
         df = pd.read_excel(
             uploaded_file,
             sheet_name="Template",
             header=None
         )
 
-        # =========================
+        # ==========================
         # Helper Functions
-        # =========================
+        # ==========================
 
-        def find_text_value(keyword):
-
-            for row in df.values:
-                for cell in row:
-
-                    if pd.notna(cell):
-
-                        text = str(cell).strip()
-
-                        if keyword.lower() in text.lower():
-
-                            if ":" in text:
-                                return text.split(":", 1)[1].strip()
-
-            return ""
-
-        def find_value_near_label(keyword):
+        def get_value_after_label(label):
 
             rows, cols = df.shape
 
             for r in range(rows):
                 for c in range(cols):
 
-                    cell = df.iloc[r, c]
+                    value = df.iloc[r, c]
 
-                    if pd.notna(cell):
+                    if pd.notna(value):
 
-                        text = str(cell).strip().lower()
+                        text = str(value).strip()
 
-                        if keyword.lower() in text:
+                        if text.lower().startswith(label.lower()):
 
-                            # Check right side
-                            for nc in range(c + 1, min(c + 5, cols)):
+                            # Handle labels written as:
+                            # NAME: Abhishek G
 
-                                value = df.iloc[r, nc]
+                            if ":" in text:
+                                parts = text.split(":", 1)
 
-                                if pd.notna(value):
-                                    return value
+                                if len(parts) > 1:
+                                    return parts[1].strip()
 
-                            # Check below
-                            for nr in range(r + 1, min(r + 5, rows)):
+                            # Handle labels with value in next column
+                            for nc in range(c + 1, min(c + 4, cols)):
 
-                                value = df.iloc[nr, c]
+                                next_value = df.iloc[r, nc]
 
-                                if pd.notna(value):
-                                    return value
+                                if pd.notna(next_value):
+                                    return str(next_value).strip()
 
             return ""
 
-        # =========================
-        # Basic Details
-        # =========================
+        # ==========================
+        # Employee Details
+        # ==========================
 
-        project_name = find_text_value("Project Name")
-        employee_name = find_text_value("Name")
-        employee_id = find_text_value("Emp ID")
-        site_name = find_text_value("Site Name")
+        project_name = get_value_after_label("Project Name:")
+        employee_name = get_value_after_label("NAME:")
+        employee_id = get_value_after_label("Emp ID:")
+        site_name = get_value_after_label("Site Name:")
 
-        account_number = find_value_near_label("Account")
-        ifsc = find_value_near_label("IFSC")
-        email = find_value_near_label("Email")
-        phone = find_value_near_label("Phone")
+        account_number = get_value_after_label("Account number")
+        ifsc = get_value_after_label("IFSC")
+        email = get_value_after_label("Email")
+        phone = get_value_after_label("Phone")
 
-        advance_total = find_value_near_label("Advance Total")
-        expenses_total = find_value_near_label("Expenses Total")
-        balance_on_hand = find_value_near_label("Balance On Hand")
+        advance_total = get_value_after_label("Advance Total")
+        expenses_total = get_value_after_label("Expenses total")
+        balance_on_hand = get_value_after_label("Balance on hand")
 
         st.success("✅ Template Sheet Extracted Successfully")
 
-        # =========================
-        # Employee Details
-        # =========================
+        # ==========================
+        # Employee Details Display
+        # ==========================
 
         st.subheader("📌 Employee & Site Details")
 
         col1, col2 = st.columns(2)
 
         with col1:
-            st.write("**Project Name:**", project_name)
-            st.write("**Employee Name:**", employee_name)
-            st.write("**Employee ID:**", employee_id)
-            st.write("**Site Name:**", site_name)
+            st.write(f"**Project Name:** {project_name}")
+            st.write(f"**Employee Name:** {employee_name}")
+            st.write(f"**Employee ID:** {employee_id}")
+            st.write(f"**Site Name:** {site_name}")
 
         with col2:
-            st.write("**Email:**", email)
-            st.write("**Phone Number:**", phone)
-            st.write("**IFSC Code:**", ifsc)
-            st.write("**Account Number:**", account_number)
+            st.write(f"**Email:** {email}")
+            st.write(f"**Phone Number:** {phone}")
+            st.write(f"**IFSC Code:** {ifsc}")
+            st.write(f"**Account Number:** {account_number}")
 
-        # =========================
+        # ==========================
         # Financial Summary
-        # =========================
+        # ==========================
 
         st.subheader("💰 Financial Summary")
 
@@ -135,40 +121,41 @@ if uploaded_file:
         with c3:
             st.metric("Balance On Hand", balance_on_hand)
 
-        # =========================
+        # ==========================
         # Expense Table Extraction
-        # =========================
+        # ==========================
 
         st.subheader("📊 Expense Details")
-
-        expense_table = None
 
         rows, cols = df.shape
 
         header_row = None
-        desc_col = None
 
         for r in range(rows):
             for c in range(cols):
 
-                value = df.iloc[r, c]
+                cell = df.iloc[r, c]
 
-                if pd.notna(value):
+                if pd.notna(cell):
 
-                    text = str(value).strip().lower()
-
-                    if "description of expenses" in text:
+                    if str(cell).strip().lower() == "description of expenses":
 
                         header_row = r
+
                         desc_col = c
+                        gl_col = c + 1
+                        advance_col = c + 2
+                        expense_col = c + 3
+                        approval_col = c + 4
+
                         break
 
             if header_row is not None:
                 break
 
-        if header_row is not None:
+        expense_data = []
 
-            extracted_rows = []
+        if header_row is not None:
 
             for r in range(header_row + 1, rows):
 
@@ -179,44 +166,41 @@ if uploaded_file:
 
                 description = str(description).strip()
 
-                if description == "":
-                    continue
+                # Stop reading when summary section starts
+                if description.lower().startswith("opening balance"):
+                    break
 
-                row_values = []
+                total_expense = ""
 
-                for c in range(desc_col, min(desc_col + 4, cols)):
-                    row_values.append(df.iloc[r, c])
+                if expense_col < cols:
+                    value = df.iloc[r, expense_col]
 
-                extracted_rows.append(row_values)
+                    if pd.notna(value):
+                        total_expense = value
 
-            if extracted_rows:
+                special_approval = ""
 
-                max_cols = max(len(row) for row in extracted_rows)
+                if approval_col < cols:
+                    value = df.iloc[r, approval_col]
 
-                column_names = [
-                    "Description of Expenses",
-                    "Total Expenses",
-                    "Special Approval",
-                    "Remarks"
-                ][:max_cols]
+                    if pd.notna(value):
+                        special_approval = value
 
-                expense_table = pd.DataFrame(
-                    extracted_rows,
-                    columns=column_names
+                expense_data.append(
+                    {
+                        "Description of Expenses": description,
+                        "Total Expenses": total_expense,
+                        "Special Approval": special_approval
+                    }
                 )
 
-                st.dataframe(
-                    expense_table,
-                    use_container_width=True
-                )
+        expense_df = pd.DataFrame(expense_data)
 
-            else:
-                st.warning("Expense table found but no data extracted.")
-
-        else:
-            st.warning(
-                "Could not automatically locate the 'Description of Expenses' table."
-            )
+        st.dataframe(
+            expense_df,
+            use_container_width=True,
+            hide_index=True
+        )
 
     except Exception as e:
         st.error(f"❌ Error: {e}")
