@@ -16,20 +16,24 @@ uploaded_file = st.file_uploader(
 if uploaded_file:
 
     try:
+        # =========================
+        # Read Template Sheet
+        # =========================
         df = pd.read_excel(
             uploaded_file,
             sheet_name="Template",
             header=None
         )
 
+        # =========================
+        # Helper Functions
+        # =========================
+
         def find_text_value(keyword):
-            """
-            Finds values written like:
-            Project Name: FPEL Kudligi
-            Name: Abhishek G
-            """
+
             for row in df.values:
                 for cell in row:
+
                     if pd.notna(cell):
 
                         text = str(cell).strip()
@@ -41,13 +45,7 @@ if uploaded_file:
 
             return ""
 
-        def find_value_below_or_right(keyword):
-            """
-            Finds labels like:
-            Account Number | 42091673874
-
-            IFSC CODE      | SBIN0040092
-            """
+        def find_value_near_label(keyword):
 
             rows, cols = df.shape
 
@@ -62,114 +60,47 @@ if uploaded_file:
 
                         if keyword.lower() in text:
 
-                            # Check right side first
-                            for next_col in range(c + 1, min(c + 4, cols)):
-                                value = df.iloc[r, next_col]
+                            # Check right side
+                            for nc in range(c + 1, min(c + 5, cols)):
+
+                                value = df.iloc[r, nc]
 
                                 if pd.notna(value):
                                     return value
 
                             # Check below
-                            for next_row in range(r + 1, min(r + 4, rows)):
-                                value = df.iloc[next_row, c]
+                            for nr in range(r + 1, min(r + 5, rows)):
+
+                                value = df.iloc[nr, c]
 
                                 if pd.notna(value):
                                     return value
 
             return ""
 
-        # ==========================
-        # Employee Details
-        # ==========================
+        # =========================
+        # Basic Details
+        # =========================
 
         project_name = find_text_value("Project Name")
-        employee_name = find_text_value("NAME")
+        employee_name = find_text_value("Name")
         employee_id = find_text_value("Emp ID")
         site_name = find_text_value("Site Name")
 
-        # ==========================
-        # Bank Details
-        # ==========================
+        account_number = find_value_near_label("Account")
+        ifsc = find_value_near_label("IFSC")
+        email = find_value_near_label("Email")
+        phone = find_value_near_label("Phone")
 
-        account_number = find_value_below_or_right("Account number")
-        ifsc = find_value_below_or_right("IFSC")
-        email = find_value_below_or_right("Email")
-        phone = find_value_below_or_right("Phone")
-        # =====================================
-# Expense Summary Table
-# =====================================
-
-st.subheader("📊 Expense Summary")
-
-expense_table = None
-
-rows, cols = df.shape
-
-for r in range(rows):
-    for c in range(cols):
-
-        cell = str(df.iloc[r, c]).strip().lower() if pd.notna(df.iloc[r, c]) else ""
-
-        if "description of expenses" in cell:
-
-            # Table starts from this row
-            header_row = r
-
-            table_data = []
-
-            for i in range(header_row + 1, rows):
-
-                desc = df.iloc[i, c]
-
-                amount = df.iloc[i, c + 1] if c + 1 < cols else ""
-                approval = df.iloc[i, c + 2] if c + 2 < cols else ""
-
-                # Stop when blank rows start appearing
-                if pd.isna(desc):
-                    continue
-
-                desc_text = str(desc).strip()
-
-                if desc_text == "":
-                    continue
-
-                table_data.append([
-                    desc,
-                    amount,
-                    approval
-                ])
-
-            expense_table = pd.DataFrame(
-                table_data,
-                columns=[
-                    "Description of Expenses",
-                    "Total Expenses",
-                    "Any Special Approval"
-                ]
-            )
-
-            break
-
-    if expense_table is not None:
-        break
-
-if expense_table is not None:
-    st.dataframe(
-        expense_table,
-        use_container_width=True
-    )
-else:
-    st.warning("Expense table not found.")
-
-        # ==========================
-        # Financial Details
-        # ==========================
-
-        advance_total = find_value_below_or_right("Advance Total")
-        expenses_total = find_value_below_or_right("Expenses total")
-        balance_on_hand = find_value_below_or_right("Balance on hand")
+        advance_total = find_value_near_label("Advance Total")
+        expenses_total = find_value_near_label("Expenses Total")
+        balance_on_hand = find_value_near_label("Balance On Hand")
 
         st.success("✅ Template Sheet Extracted Successfully")
+
+        # =========================
+        # Employee Details
+        # =========================
 
         st.subheader("📌 Employee & Site Details")
 
@@ -187,38 +118,105 @@ else:
             st.write("**IFSC Code:**", ifsc)
             st.write("**Account Number:**", account_number)
 
+        # =========================
+        # Financial Summary
+        # =========================
+
         st.subheader("💰 Financial Summary")
 
         c1, c2, c3 = st.columns(3)
 
         with c1:
-            st.metric(
-                "Advance Total",
-                f"₹ {float(advance_total):,.2f}"
-            )
+            st.metric("Advance Total", advance_total)
 
         with c2:
-            st.metric(
-                "Expenses Total",
-                f"₹ {float(expenses_total):,.2f}"
-            )
+            st.metric("Expenses Total", expenses_total)
 
         with c3:
-            st.metric(
-                "Balance On Hand",
-                f"₹ {float(balance_on_hand):,.2f}"
+            st.metric("Balance On Hand", balance_on_hand)
+
+        # =========================
+        # Expense Table Extraction
+        # =========================
+
+        st.subheader("📊 Expense Details")
+
+        expense_table = None
+
+        rows, cols = df.shape
+
+        header_row = None
+        desc_col = None
+
+        for r in range(rows):
+            for c in range(cols):
+
+                value = df.iloc[r, c]
+
+                if pd.notna(value):
+
+                    text = str(value).strip().lower()
+
+                    if "description of expenses" in text:
+
+                        header_row = r
+                        desc_col = c
+                        break
+
+            if header_row is not None:
+                break
+
+        if header_row is not None:
+
+            extracted_rows = []
+
+            for r in range(header_row + 1, rows):
+
+                description = df.iloc[r, desc_col]
+
+                if pd.isna(description):
+                    continue
+
+                description = str(description).strip()
+
+                if description == "":
+                    continue
+
+                row_values = []
+
+                for c in range(desc_col, min(desc_col + 4, cols)):
+                    row_values.append(df.iloc[r, c])
+
+                extracted_rows.append(row_values)
+
+            if extracted_rows:
+
+                max_cols = max(len(row) for row in extracted_rows)
+
+                column_names = [
+                    "Description of Expenses",
+                    "Total Expenses",
+                    "Special Approval",
+                    "Remarks"
+                ][:max_cols]
+
+                expense_table = pd.DataFrame(
+                    extracted_rows,
+                    columns=column_names
+                )
+
+                st.dataframe(
+                    expense_table,
+                    use_container_width=True
+                )
+
+            else:
+                st.warning("Expense table found but no data extracted.")
+
+        else:
+            st.warning(
+                "Could not automatically locate the 'Description of Expenses' table."
             )
-
-        # ==========================
-        # Show Available Sheets
-        # ==========================
-
-        excel_file = pd.ExcelFile(uploaded_file)
-
-        st.subheader("📄 Available Sheets")
-
-        for sheet in excel_file.sheet_names:
-            st.write("•", sheet)
 
     except Exception as e:
         st.error(f"❌ Error: {e}")
