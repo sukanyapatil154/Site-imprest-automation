@@ -95,6 +95,71 @@ if uploaded_file:
         ifsc = find_value_below_or_right("IFSC")
         email = find_value_below_or_right("Email")
         phone = find_value_below_or_right("Phone")
+        # =====================================
+# Expense Summary Table
+# =====================================
+
+st.subheader("📊 Expense Summary")
+
+expense_table = None
+
+rows, cols = df.shape
+
+for r in range(rows):
+    for c in range(cols):
+
+        cell = str(df.iloc[r, c]).strip().lower() if pd.notna(df.iloc[r, c]) else ""
+
+        if "description of expenses" in cell:
+
+            # Table starts from this row
+            header_row = r
+
+            table_data = []
+
+            for i in range(header_row + 1, rows):
+
+                desc = df.iloc[i, c]
+
+                amount = df.iloc[i, c + 1] if c + 1 < cols else ""
+                approval = df.iloc[i, c + 2] if c + 2 < cols else ""
+
+                # Stop when blank rows start appearing
+                if pd.isna(desc):
+                    continue
+
+                desc_text = str(desc).strip()
+
+                if desc_text == "":
+                    continue
+
+                table_data.append([
+                    desc,
+                    amount,
+                    approval
+                ])
+
+            expense_table = pd.DataFrame(
+                table_data,
+                columns=[
+                    "Description of Expenses",
+                    "Total Expenses",
+                    "Any Special Approval"
+                ]
+            )
+
+            break
+
+    if expense_table is not None:
+        break
+
+if expense_table is not None:
+    st.dataframe(
+        expense_table,
+        use_container_width=True
+    )
+else:
+    st.warning("Expense table not found.")
 
         # ==========================
         # Financial Details
