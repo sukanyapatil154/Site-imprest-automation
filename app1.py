@@ -238,115 +238,146 @@ if uploaded_file:
         # CATEGORY VALIDATION
         # ==================================================
 
+
         st.subheader("🔍 Category Validation")
-
+        
         validation_rows = []
-
+        
         total_pass = 0
         total_fail = 0
-
+        
         sub_sheet_grand_total = 0.0
-
-        sheet_names = [
-            sheet.strip().lower()
-            for sheet in excel_file.sheet_names
-        ]
-
+        
         for _, row in expense_df.iterrows():
-
-            category = str(
+        
+            description = str(
                 row["Description of Expenses"]
             ).strip()
-
+        
+            # Extract only category name
+            # Example:
+            # Food (Business Trip...) -> Food
+        
+            category = description.split("(")[0].strip()
+        
             template_amount = safe_float(
                 row["Total Expenses"]
             )
-
+        
             matching_sheet = None
-
+        
+            # ==========================
+            # FIND MATCHING SHEET
+            # ==========================
+        
             for sheet in excel_file.sheet_names:
-
+        
                 if sheet.strip().lower() == category.lower():
-
+        
                     matching_sheet = sheet
                     break
-
+        
             # ==========================
             # SHEET NOT FOUND
             # ==========================
-
+        
             if matching_sheet is None:
-
+        
                 if template_amount == 0:
-
+        
                     sheet_total = 0.0
                     difference = 0.0
+        
                     status = "✅ PASS"
                     total_pass += 1
-
+        
                 else:
-
+        
                     sheet_total = 0.0
                     difference = template_amount
+        
                     status = "❌ FAIL"
                     total_fail += 1
-
+        
             else:
-
+        
                 sub_df = pd.read_excel(
                     uploaded_file,
                     sheet_name=matching_sheet,
                     header=None
                 )
-
+        
                 sheet_total = 0.0
-
+        
                 found_total = False
-
-                s_rows, s_cols = sub_df.shape
-
-                for r in range(s_rows):
-
-                    for c in range(s_cols):
-
+        
+                rows_sub, cols_sub = sub_df.shape
+        
+                # ==========================
+                # FIND TOTAL ROW
+                # ==========================
+        
+                for r in range(rows_sub):
+        
+                    for c in range(cols_sub):
+        
                         cell = sub_df.iloc[r, c]
-
+        
                         if pd.notna(cell):
-
+        
                             text = str(cell).strip().lower()
-
+        
                             if "total" in text:
-
-                                if c + 1 < s_cols:
-
-                                    sheet_total = safe_float(
-                                        sub_df.iloc[r, c + 1]
+        
+                                # Search entire row
+                                # and pick largest numeric value
+        
+                                numeric_values = []
+        
+                                for cc in range(cols_sub):
+        
+                                    val = sub_df.iloc[r, cc]
+        
+                                    try:
+        
+                                        num = safe_float(val)
+        
+                                        if num > 0:
+                                            numeric_values.append(num)
+        
+                                    except:
+                                        pass
+        
+                                if len(numeric_values) > 0:
+        
+                                    sheet_total = max(
+                                        numeric_values
                                     )
-
-                                    found_total = True
-                                    break
-
+        
+                                found_total = True
+                                break
+        
                     if found_total:
                         break
-
+        
+                sub_sheet_grand_total += sheet_total
+        
                 difference = abs(
                     template_amount - sheet_total
                 )
-
-                sub_sheet_grand_total += sheet_total
-
+        
                 if difference < 0.01:
-
+        
                     status = "✅ PASS"
                     total_pass += 1
-
+        
                 else:
-
+        
                     status = "❌ FAIL"
                     total_fail += 1
-
+        
             validation_rows.append({
-
+        
                 "Category": category,
                 "Template Amount": round(
                     template_amount, 2
@@ -359,11 +390,11 @@ if uploaded_file:
                 ),
                 "Status": status
             })
-
+        
         validation_df = pd.DataFrame(
             validation_rows
         )
-
+        
         st.dataframe(
             validation_df,
             use_container_width=True,
