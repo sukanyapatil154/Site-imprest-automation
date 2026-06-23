@@ -237,9 +237,30 @@ if uploaded_file:
         # ==================================================
         # CATEGORY VALIDATION
         # ==================================================
-
-
+        
         st.subheader("🔍 Category Validation")
+        
+        CATEGORY_MAP = {
+            1: "Air Ticket",
+            2: "Train Tickets",
+            3: "Hotel",
+            4: "Food",
+            5: "Car Rental",
+            6: "Daily Rental Vehicle",
+            7: "Stationery Expenses",
+            8: "Printing Charges",
+            9: "Subscription Charges",
+            10: "Cleaning Charges",
+            11: "Telephone Charges",
+            12: "Courier Charges",
+            13: "Repairs & Maintenance",
+            14: "Loading & Unloading / Transport charges",
+            15: "Diesel Oil",
+            16: "Consumables",
+            17: "Rent",
+            18: "Electricity charges",
+            19: "Other Expense"
+        }
         
         validation_rows = []
         
@@ -248,74 +269,40 @@ if uploaded_file:
         
         sub_sheet_grand_total = 0.0
         
-        for _, row in expense_df.iterrows():
+        expense_df = expense_df.reset_index(drop=True)
         
-            description = str(
-                row["Description of Expenses"]
-            ).strip()
+        for idx, row in expense_df.iterrows():
         
-            # Extract only category name
-            # Example:
-            # Food (Business Trip...) -> Food
+            sl_no = idx + 1
         
-            category = description.split("(")[0].strip()
+            category = CATEGORY_MAP.get(
+                sl_no,
+                f"Category {sl_no}"
+            )
         
             template_amount = safe_float(
                 row["Total Expenses"]
             )
         
-            matching_sheet = None
+            sheet_name = str(sl_no)
         
-            # ==========================
-            # FIND MATCHING SHEET
-            # ==========================
+            sheet_total = 0.0
         
-            for sheet in excel_file.sheet_names:
+            # =====================================
+            # SHEET EXISTS
+            # =====================================
         
-                if sheet.strip().lower() == category.lower():
-        
-                    matching_sheet = sheet
-                    break
-        
-            # ==========================
-            # SHEET NOT FOUND
-            # ==========================
-        
-            if matching_sheet is None:
-        
-                if template_amount == 0:
-        
-                    sheet_total = 0.0
-                    difference = 0.0
-        
-                    status = "✅ PASS"
-                    total_pass += 1
-        
-                else:
-        
-                    sheet_total = 0.0
-                    difference = template_amount
-        
-                    status = "❌ FAIL"
-                    total_fail += 1
-        
-            else:
+            if sheet_name in excel_file.sheet_names:
         
                 sub_df = pd.read_excel(
                     uploaded_file,
-                    sheet_name=matching_sheet,
+                    sheet_name=sheet_name,
                     header=None
                 )
         
-                sheet_total = 0.0
-        
-                found_total = False
-        
                 rows_sub, cols_sub = sub_df.shape
         
-                # ==========================
-                # FIND TOTAL ROW
-                # ==========================
+                found_total = False
         
                 for r in range(rows_sub):
         
@@ -327,10 +314,10 @@ if uploaded_file:
         
                             text = str(cell).strip().lower()
         
-                            if "total" in text:
-        
-                                # Search entire row
-                                # and pick largest numeric value
+                            if (
+                                text == "total"
+                                or "total expenses" in text
+                            ):
         
                                 numeric_values = []
         
@@ -348,7 +335,7 @@ if uploaded_file:
                                     except:
                                         pass
         
-                                if len(numeric_values) > 0:
+                                if numeric_values:
         
                                     sheet_total = max(
                                         numeric_values
@@ -360,34 +347,51 @@ if uploaded_file:
                     if found_total:
                         break
         
-                sub_sheet_grand_total += sheet_total
+            # =====================================
+            # MISSING SHEET LOGIC
+            # =====================================
         
-                difference = abs(
-                    template_amount - sheet_total
-                )
+            else:
         
-                if difference < 0.01:
+                if template_amount == 0:
         
-                    status = "✅ PASS"
-                    total_pass += 1
+                    sheet_total = 0
         
                 else:
         
-                    status = "❌ FAIL"
-                    total_fail += 1
+                    sheet_total = 0
+        
+            sub_sheet_grand_total += sheet_total
+        
+            difference = abs(
+                template_amount - sheet_total
+            )
+        
+            if difference < 0.01:
+        
+                status = "✅ PASS"
+                total_pass += 1
+        
+            else:
+        
+                status = "❌ FAIL"
+                total_fail += 1
         
             validation_rows.append({
         
+                "Sl No": sl_no,
+        
                 "Category": category,
-                "Template Amount": round(
-                    template_amount, 2
-                ),
-                "Sheet Total": round(
-                    sheet_total, 2
-                ),
-                "Difference": round(
-                    difference, 2
-                ),
+        
+                "Template Amount":
+                    round(template_amount, 2),
+        
+                "Sheet Total":
+                    round(sheet_total, 2),
+        
+                "Difference":
+                    round(difference, 2),
+        
                 "Status": status
             })
         
@@ -400,7 +404,6 @@ if uploaded_file:
             use_container_width=True,
             hide_index=True
         )
-
         # ==================================================
         # VALIDATION SUMMARY
         # ==================================================
