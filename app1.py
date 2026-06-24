@@ -8,78 +8,117 @@ st.set_page_config(
 st.markdown("""
 <style>
 
-.main {
-    background-color: #f5f7fb;
+.stApp{
+    background:#f5f7fb;
 }
 
-.block-container {
-    padding-top: 1rem;
-    padding-bottom: 2rem;
-}
-
-.header-box {
-    background: linear-gradient(135deg,#003366,#0066cc);
-    padding:20px;
-    border-radius:15px;
-    color:white;
-    text-align:center;
+.hero-box{
+    background:white;
+    border-radius:20px;
+    padding:30px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.05);
     margin-bottom:25px;
 }
 
-.card {
-    background:white;
-    padding:20px;
-    border-radius:15px;
-    box-shadow:0px 2px 10px rgba(0,0,0,0.08);
-    border-left:5px solid #0066cc;
-    margin-bottom:15px;
-}
-
-.card-title {
-    font-size:14px;
-    color:#666;
-    font-weight:600;
-}
-
-.card-value {
-    font-size:24px;
-    font-weight:bold;
-    color:#003366;
-}
-
-.metric-card {
-    background:white;
-    padding:20px;
-    border-radius:15px;
-    box-shadow:0px 2px 10px rgba(0,0,0,0.08);
+.hero-title{
+    font-size:40px;
+    font-weight:700;
     text-align:center;
+    margin-bottom:10px;
 }
 
-.metric-label {
-    font-size:14px;
+.hero-title span{
+    color:#3b82f6;
+}
+
+.hero-sub{
+    text-align:center;
     color:#666;
+    font-size:18px;
 }
 
-.metric-value {
-    font-size:32px;
+.card{
+    background:white;
+    border-radius:16px;
+    padding:20px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.05);
+    border:1px solid #eef2f7;
+}
+
+.small-title{
+    font-size:12px;
+    color:#666;
+    text-transform:uppercase;
+}
+
+.big-value{
+    font-size:22px;
+    font-weight:700;
+    color:#111827;
+}
+
+.metric-card{
+    background:white;
+    border-radius:16px;
+    padding:20px;
+    text-align:center;
+    box-shadow:0 4px 10px rgba(0,0,0,0.05);
+}
+
+.metric-value{
+    font-size:30px;
     font-weight:bold;
-    color:#0066cc;
+}
+
+.green{
+    color:#10b981;
+}
+
+.orange{
+    color:#f97316;
+}
+
+.blue{
+    color:#2563eb;
+}
+
+.section-box{
+    background:white;
+    padding:25px;
+    border-radius:20px;
+    margin-bottom:20px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.05);
 }
 
 </style>
 """, unsafe_allow_html=True)
 
 st.markdown("""
-<div class="header-box">
-<h1>📋 Site Imprest Validation Portal</h1>
-<p>Automated Validation of Site Expenses, Bills and Supporting Documents</p>
+<div class="hero-box">
+
+<div class="hero-title">
+Welcome to <span>Site Imprest</span> Validation Tool
+</div>
+
+<div class="hero-sub">
+Upload the site imprest workbook to automatically validate category-wise totals,
+expenses and supporting sheets.
+</div>
+
 </div>
 """, unsafe_allow_html=True)
 
-uploaded_file = st.file_uploader(
-    "Upload Site Imprest Excel File",
-    type=["xlsx", "xlsm"]
-)
+st.markdown("""
+<div class="section-box">
+<h4>📂 Upload Site Imprest Workbook</h4>
+<p>
+Excel must contain:
+<br>✔ Template sheet
+<br>✔ Category sheets named 1 to 19
+<br>✔ Total row in each category sheet
+</p>
+</div>
+""", unsafe_allow_html=True)
 
 if uploaded_file:
 
@@ -180,106 +219,122 @@ if uploaded_file:
         # EMPLOYEE DETAILS DISPLAY
         # ==================================================
         
-        st.subheader("👤 Employee & Site Details")
+           st.markdown("""
+        <div class="section-box">
+        <h3>👤 Employee & Site Details</h3>
+        </div>
+        """, unsafe_allow_html=True)
         
-        col1,col2,col3,col4 = st.columns(4)
+        c1,c2,c3,c4=st.columns(4)
         
-        with col1:
+        with c1:
             st.markdown(f"""
             <div class="card">
-            <div class="card-title">PROJECT NAME</div>
-            <div class="card-value">{project_name}</div>
+            <div class="small-title">PROJECT NAME</div>
+            <div class="big-value">{project_name}</div>
             </div>
             """, unsafe_allow_html=True)
         
-        with col2:
+        with c2:
             st.markdown(f"""
             <div class="card">
-            <div class="card-title">EMPLOYEE NAME</div>
-            <div class="card-value">{employee_name}</div>
+            <div class="small-title">EMPLOYEE NAME</div>
+            <div class="big-value">{employee_name}</div>
             </div>
             """, unsafe_allow_html=True)
         
-        with col3:
+        with c3:
             st.markdown(f"""
             <div class="card">
-            <div class="card-title">EMPLOYEE ID</div>
-            <div class="card-value">{employee_id}</div>
+            <div class="small-title">EMPLOYEE ID</div>
+            <div class="big-value">{employee_id}</div>
             </div>
             """, unsafe_allow_html=True)
         
-        with col4:
+        with c4:
             st.markdown(f"""
             <div class="card">
-            <div class="card-title">SITE NAME</div>
-            <div class="card-value">{site_name}</div>
+            <div class="small-title">SITE NAME</div>
+            <div class="big-value">{site_name}</div>
             </div>
             """, unsafe_allow_html=True)
         
-        col1,col2,col3,col4 = st.columns(4)
+        c1,c2,c3,c4=st.columns(4)
         
-        with col1:
+        with c1:
             st.markdown(f"""
             <div class="card">
-            <div class="card-title">ACCOUNT NUMBER</div>
-            <div class="card-value">{account_number}</div>
+            <div class="small-title">ACCOUNT NUMBER</div>
+            <div class="big-value">{account_number}</div>
             </div>
             """, unsafe_allow_html=True)
         
-        with col2:
+        with c2:
             st.markdown(f"""
             <div class="card">
-            <div class="card-title">IFSC CODE</div>
-            <div class="card-value">{ifsc}</div>
+            <div class="small-title">IFSC CODE</div>
+            <div class="big-value">{ifsc}</div>
             </div>
             """, unsafe_allow_html=True)
         
-        with col3:
+        with c3:
             st.markdown(f"""
             <div class="card">
-            <div class="card-title">EMAIL ID</div>
-            <div class="card-value">{email}</div>
+            <div class="small-title">EMAIL ID</div>
+            <div class="big-value">{email}</div>
             </div>
             """, unsafe_allow_html=True)
         
-        with col4:
+        with c4:
             st.markdown(f"""
             <div class="card">
-            <div class="card-title">PHONE NUMBER</div>
-            <div class="card-value">{phone}</div>
+            <div class="small-title">PHONE NUMBER</div>
+            <div class="big-value">{phone}</div>
             </div>
             """, unsafe_allow_html=True)
-            
+    
         # ==================================================
         # FINANCIAL SUMMARY
         # ==================================================
-        st.subheader("💰 Financial Summary")
+        st.markdown("""
+        <div class="section-box">
+        <h3>💰 Financial Summary</h3>
+        </div>
+        """, unsafe_allow_html=True)
         
         c1,c2,c3 = st.columns(3)
         
         with c1:
             st.markdown(f"""
             <div class="metric-card">
-            <div class="metric-label">Advance Total</div>
-            <div class="metric-value">₹ {advance_total:,.2f}</div>
+            <div>ADVANCE TOTAL</div>
+            <div class="metric-value green">
+            ₹ {advance_total:,.2f}
+            </div>
             </div>
             """, unsafe_allow_html=True)
         
         with c2:
             st.markdown(f"""
             <div class="metric-card">
-            <div class="metric-label">Expenses Total</div>
-            <div class="metric-value">₹ {expenses_total:,.2f}</div>
+            <div>EXPENSES TOTAL</div>
+            <div class="metric-value orange">
+            ₹ {expenses_total:,.2f}
+            </div>
             </div>
             """, unsafe_allow_html=True)
         
         with c3:
             st.markdown(f"""
             <div class="metric-card">
-            <div class="metric-label">Balance On Hand</div>
-            <div class="metric-value">₹ {balance_on_hand:,.2f}</div>
+            <div>BALANCE ON HAND</div>
+            <div class="metric-value blue">
+            ₹ {balance_on_hand:,.2f}
+            </div>
             </div>
             """, unsafe_allow_html=True)
+
+
         # ==================================================
         # EXPENSE TABLE EXTRACTION
         # ==================================================
