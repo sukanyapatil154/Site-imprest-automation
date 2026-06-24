@@ -5,8 +5,76 @@ st.set_page_config(
     page_title="Site Imprest Validation Tool",
     layout="wide"
 )
+st.markdown("""
+<style>
 
-st.title("📋 Site Imprest Validation Tool")
+.main {
+    background-color: #f5f7fb;
+}
+
+.block-container {
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+}
+
+.header-box {
+    background: linear-gradient(135deg,#003366,#0066cc);
+    padding:20px;
+    border-radius:15px;
+    color:white;
+    text-align:center;
+    margin-bottom:25px;
+}
+
+.card {
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0px 2px 10px rgba(0,0,0,0.08);
+    border-left:5px solid #0066cc;
+    margin-bottom:15px;
+}
+
+.card-title {
+    font-size:14px;
+    color:#666;
+    font-weight:600;
+}
+
+.card-value {
+    font-size:24px;
+    font-weight:bold;
+    color:#003366;
+}
+
+.metric-card {
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0px 2px 10px rgba(0,0,0,0.08);
+    text-align:center;
+}
+
+.metric-label {
+    font-size:14px;
+    color:#666;
+}
+
+.metric-value {
+    font-size:32px;
+    font-weight:bold;
+    color:#0066cc;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<div class="header-box">
+<h1>📋 Site Imprest Validation Portal</h1>
+<p>Automated Validation of Site Expenses, Bills and Supporting Documents</p>
+</div>
+""", unsafe_allow_html=True)
 
 uploaded_file = st.file_uploader(
     "Upload Site Imprest Excel File",
@@ -111,51 +179,107 @@ if uploaded_file:
         # ==================================================
         # EMPLOYEE DETAILS DISPLAY
         # ==================================================
-
-        st.subheader("📌 Employee & Site Details")
-
-        col1, col2 = st.columns(2)
-
+        
+        st.subheader("👤 Employee & Site Details")
+        
+        col1,col2,col3,col4 = st.columns(4)
+        
         with col1:
-
-            st.write(f"**Project Name:** {project_name}")
-            st.write(f"**Employee Name:** {employee_name}")
-            st.write(f"**Employee ID:** {employee_id}")
-            st.write(f"**Site Name:** {site_name}")
-
+            st.markdown(f"""
+            <div class="card">
+            <div class="card-title">PROJECT NAME</div>
+            <div class="card-value">{project_name}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
         with col2:
-
-            st.write(f"**Email:** {email}")
-            st.write(f"**Phone Number:** {phone}")
-            st.write(f"**IFSC Code:** {ifsc}")
-            st.write(f"**Account Number:** {account_number}")
-
+            st.markdown(f"""
+            <div class="card">
+            <div class="card-title">EMPLOYEE NAME</div>
+            <div class="card-value">{employee_name}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col3:
+            st.markdown(f"""
+            <div class="card">
+            <div class="card-title">EMPLOYEE ID</div>
+            <div class="card-value">{employee_id}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col4:
+            st.markdown(f"""
+            <div class="card">
+            <div class="card-title">SITE NAME</div>
+            <div class="card-value">{site_name}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        col1,col2,col3,col4 = st.columns(4)
+        
+        with col1:
+            st.markdown(f"""
+            <div class="card">
+            <div class="card-title">ACCOUNT NUMBER</div>
+            <div class="card-value">{account_number}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col2:
+            st.markdown(f"""
+            <div class="card">
+            <div class="card-title">IFSC CODE</div>
+            <div class="card-value">{ifsc}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col3:
+            st.markdown(f"""
+            <div class="card">
+            <div class="card-title">EMAIL ID</div>
+            <div class="card-value">{email}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col4:
+            st.markdown(f"""
+            <div class="card">
+            <div class="card-title">PHONE NUMBER</div>
+            <div class="card-value">{phone}</div>
+            </div>
+            """, unsafe_allow_html=True)
+            
         # ==================================================
         # FINANCIAL SUMMARY
         # ==================================================
-
         st.subheader("💰 Financial Summary")
-
-        c1, c2, c3 = st.columns(3)
-
+        
+        c1,c2,c3 = st.columns(3)
+        
         with c1:
-            st.metric(
-                "Advance Total",
-                f"₹ {advance_total:,.2f}"
-            )
-
+            st.markdown(f"""
+            <div class="metric-card">
+            <div class="metric-label">Advance Total</div>
+            <div class="metric-value">₹ {advance_total:,.2f}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
         with c2:
-            st.metric(
-                "Expenses Total",
-                f"₹ {expenses_total:,.2f}"
-            )
-
+            st.markdown(f"""
+            <div class="metric-card">
+            <div class="metric-label">Expenses Total</div>
+            <div class="metric-value">₹ {expenses_total:,.2f}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
         with c3:
-            st.metric(
-                "Balance On Hand",
-                f"₹ {balance_on_hand:,.2f}"
-            )
-
+            st.markdown(f"""
+            <div class="metric-card">
+            <div class="metric-label">Balance On Hand</div>
+            <div class="metric-value">₹ {balance_on_hand:,.2f}</div>
+            </div>
+            """, unsafe_allow_html=True)
         # ==================================================
         # EXPENSE TABLE EXTRACTION
         # ==================================================
