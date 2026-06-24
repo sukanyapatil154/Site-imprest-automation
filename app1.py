@@ -1,652 +1,170 @@
-import streamlit as st
-import pandas as pd
+# ==================================================
+# CATEGORY VALIDATION
+# ==================================================
 
-st.set_page_config(
-    page_title="Site Imprest Validation Tool",
-    layout="wide"
-)
-st.markdown("""
-<style>
+st.subheader("🔍 Category Validation")
 
-.stApp{
-    background:#f5f7fb;
+CATEGORY_MAP = {
+    1: "Air Ticket",
+    2: "Train Tickets",
+    3: "Hotel",
+    4: "Food",
+    5: "Car Rental",
+    6: "Daily Rental Vehicle",
+    7: "Stationery Expenses",
+    8: "Printing Charges",
+    9: "Subscription Charges",
+    10: "Cleaning Charges",
+    11: "Telephone Charges",
+    12: "Courier Charges",
+    13: "Repairs & Maintenance",
+    14: "Loading & Unloading / Transport charges",
+    15: "Diesel Oil",
+    16: "Consumables",
+    17: "Rent",
+    18: "Electricity charges",
+    19: "Other Expense"
 }
 
-.hero-box{
-    background:white;
-    border-radius:20px;
-    padding:30px;
-    box-shadow:0 4px 15px rgba(0,0,0,0.05);
-    margin-bottom:25px;
-}
+validation_rows = []
 
-.hero-title{
-    font-size:40px;
-    font-weight:700;
-    text-align:center;
-    margin-bottom:10px;
-}
+total_pass = 0
+total_fail = 0
 
-.hero-title span{
-    color:#3b82f6;
-}
+sub_sheet_grand_total = 0.0
 
-.hero-sub{
-    text-align:center;
-    color:#666;
-    font-size:18px;
-}
+expense_df = expense_df.reset_index(drop=True)
 
-.card{
-    background:white;
-    border-radius:16px;
-    padding:20px;
-    box-shadow:0 4px 10px rgba(0,0,0,0.05);
-    border:1px solid #eef2f7;
-}
+for idx, row in expense_df.iterrows():
 
-.small-title{
-    font-size:12px;
-    color:#666;
-    text-transform:uppercase;
-}
+    sl_no = idx + 1
 
-.big-value{
-    font-size:22px;
-    font-weight:700;
-    color:#111827;
-}
+    category = CATEGORY_MAP.get(
+        sl_no,
+        f"Category {sl_no}"
+    )
 
-.metric-card{
-    background:white;
-    border-radius:16px;
-    padding:20px;
-    text-align:center;
-    box-shadow:0 4px 10px rgba(0,0,0,0.05);
-}
+    template_amount = safe_float(
+        row["Total Expenses"]
+    )
 
-.metric-value{
-    font-size:30px;
-    font-weight:bold;
-}
+    sheet_name = str(sl_no)
 
-.green{
-    color:#10b981;
-}
+    sheet_total = 0.0
 
-.orange{
-    color:#f97316;
-}
+    # =====================================
+    # SHEET EXISTS
+    # =====================================
 
-.blue{
-    color:#2563eb;
-}
+    if sheet_name in excel_file.sheet_names:
 
-.section-box{
-    background:white;
-    padding:25px;
-    border-radius:20px;
-    margin-bottom:20px;
-    box-shadow:0 4px 10px rgba(0,0,0,0.05);
-}
-
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-<div class="hero-box">
-
-<div class="hero-title">
-Welcome to <span>Site Imprest</span> Validation Tool
-</div>
-
-<div class="hero-sub">
-Upload the site imprest workbook to automatically validate category-wise totals,
-expenses and supporting sheets.
-</div>
-
-</div>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-<div class="section-box">
-<h4>📂 Upload Site Imprest Workbook</h4>
-<p>
-Excel must contain:
-<br>✔ Template sheet
-<br>✔ Category sheets named 1 to 19
-<br>✔ Total row in each category sheet
-</p>
-</div>
-""", unsafe_allow_html=True)
-
-if uploaded_file:
-
-    try:
-
-        # ==================================================
-        # READ TEMPLATE SHEET
-        # ==================================================
-        df = pd.read_excel(
+        sub_df = pd.read_excel(
             uploaded_file,
-            sheet_name="Template",
+            sheet_name=sheet_name,
             header=None
         )
 
-        excel_file = pd.ExcelFile(uploaded_file)
+        rows_sub, cols_sub = sub_df.shape
 
-        # ==================================================
-        # HELPER FUNCTIONS
-        # ==================================================
+        found_total = False
 
-        def safe_float(value):
+        for r in range(rows_sub):
 
-            try:
+            for c in range(cols_sub):
 
-                if pd.isna(value):
-                    return 0.0
+                cell = sub_df.iloc[r, c]
 
-                value = str(value).replace(",", "").strip()
+                if pd.notna(cell):
 
-                if value == "":
-                    return 0.0
+                    text = str(cell).strip().lower()
 
-                return float(value)
+                    if (
+                        text == "total"
+                        or "total expenses" in text
+                    ):
 
-            except:
-                return 0.0
+                        numeric_values = []
 
-        def get_value_after_label(label):
+                        for cc in range(cols_sub):
 
-            rows, cols = df.shape
+                            val = sub_df.iloc[r, cc]
 
-            for r in range(rows):
-                for c in range(cols):
+                            try:
 
-                    cell = df.iloc[r, c]
+                                num = safe_float(val)
 
-                    if pd.notna(cell):
+                                if num > 0:
+                                    numeric_values.append(num)
 
-                        text = str(cell).strip()
+                            except:
+                                pass
 
-                        if text.lower().startswith(label.lower()):
+                        if numeric_values:
 
-                            if ":" in text:
+                            sheet_total = max(
+                                numeric_values
+                            )
 
-                                parts = text.split(":", 1)
-
-                                if len(parts) > 1:
-                                    return parts[1].strip()
-
-                            for nc in range(c + 1, min(c + 4, cols)):
-
-                                val = df.iloc[r, nc]
-
-                                if pd.notna(val):
-                                    return str(val).strip()
-
-            return ""
-
-        # ==================================================
-        # EMPLOYEE DETAILS
-        # ==================================================
-
-        project_name = get_value_after_label("Project Name:")
-        employee_name = get_value_after_label("NAME:")
-        employee_id = get_value_after_label("Emp ID:")
-        site_name = get_value_after_label("Site Name:")
-
-        account_number = get_value_after_label("Account")
-        ifsc = get_value_after_label("IFSC")
-        email = get_value_after_label("Email")
-        phone = get_value_after_label("Phone")
-
-        advance_total = safe_float(
-            get_value_after_label("Advance Total")
-        )
-
-        expenses_total = safe_float(
-            get_value_after_label("Expenses total")
-        )
-
-        balance_on_hand = safe_float(
-            get_value_after_label("Balance on hand")
-        )
-
-        st.success("✅ Template Sheet Extracted Successfully")
-
-        # ==================================================
-        # EMPLOYEE DETAILS DISPLAY
-        # ==================================================
-        
-        st.markdown("""
-        <div class="section-box">
-        <h3>👤 Employee & Site Details</h3>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        c1,c2,c3,c4=st.columns(4)
-        
-        with c1:
-            st.markdown(f"""
-            <div class="card">
-            <div class="small-title">PROJECT NAME</div>
-            <div class="big-value">{project_name}</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with c2:
-            st.markdown(f"""
-            <div class="card">
-            <div class="small-title">EMPLOYEE NAME</div>
-            <div class="big-value">{employee_name}</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with c3:
-            st.markdown(f"""
-            <div class="card">
-            <div class="small-title">EMPLOYEE ID</div>
-            <div class="big-value">{employee_id}</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with c4:
-            st.markdown(f"""
-            <div class="card">
-            <div class="small-title">SITE NAME</div>
-            <div class="big-value">{site_name}</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        c1,c2,c3,c4=st.columns(4)
-        
-        with c1:
-            st.markdown(f"""
-            <div class="card">
-            <div class="small-title">ACCOUNT NUMBER</div>
-            <div class="big-value">{account_number}</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with c2:
-            st.markdown(f"""
-            <div class="card">
-            <div class="small-title">IFSC CODE</div>
-            <div class="big-value">{ifsc}</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with c3:
-            st.markdown(f"""
-            <div class="card">
-            <div class="small-title">EMAIL ID</div>
-            <div class="big-value">{email}</div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with c4:
-            st.markdown(f"""
-            <div class="card">
-            <div class="small-title">PHONE NUMBER</div>
-            <div class="big-value">{phone}</div>
-            </div>
-            """, unsafe_allow_html=True)
-    
-        # ==================================================
-        # FINANCIAL SUMMARY
-        # ==================================================
-        st.markdown("""
-        <div class="section-box">
-        <h3>💰 Financial Summary</h3>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        c1,c2,c3 = st.columns(3)
-        
-        with c1:
-            st.markdown(f"""
-            <div class="metric-card">
-            <div>ADVANCE TOTAL</div>
-            <div class="metric-value green">
-            ₹ {advance_total:,.2f}
-            </div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with c2:
-            st.markdown(f"""
-            <div class="metric-card">
-            <div>EXPENSES TOTAL</div>
-            <div class="metric-value orange">
-            ₹ {expenses_total:,.2f}
-            </div>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with c3:
-            st.markdown(f"""
-            <div class="metric-card">
-            <div>BALANCE ON HAND</div>
-            <div class="metric-value blue">
-            ₹ {balance_on_hand:,.2f}
-            </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-
-        # ==================================================
-        # EXPENSE TABLE EXTRACTION
-        # ==================================================
-
-        st.subheader("📊 Expense Details")
-
-        rows, cols = df.shape
-
-        header_row = None
-
-        for r in range(rows):
-
-            for c in range(cols):
-
-                value = df.iloc[r, c]
-
-                if pd.notna(value):
-
-                    if str(value).strip().lower() == "description of expenses":
-
-                        header_row = r
-
-                        desc_col = c
-                        expense_col = c + 3
-                        approval_col = c + 4
-
+                        found_total = True
                         break
 
-            if header_row is not None:
+            if found_total:
                 break
 
-        expense_data = []
+    # =====================================
+    # MISSING SHEET LOGIC
+    # =====================================
 
-        if header_row is not None:
+    else:
 
-            for r in range(header_row + 1, rows):
+        if template_amount == 0:
 
-                description = df.iloc[r, desc_col]
-
-                if pd.isna(description):
-                    continue
-
-                description = str(description).strip()
-
-                if description.lower().startswith("opening balance"):
-                    break
-
-                total_expense = 0.0
-
-                if expense_col < cols:
-
-                    total_expense = safe_float(
-                        df.iloc[r, expense_col]
-                    )
-
-                special_approval = ""
-
-                if approval_col < cols:
-
-                    val = df.iloc[r, approval_col]
-
-                    if pd.notna(val):
-                        special_approval = str(val)
-
-                expense_data.append({
-                    "Description of Expenses": description,
-                    "Total Expenses": total_expense,
-                    "Special Approval": special_approval
-                })
-
-        expense_df = pd.DataFrame(expense_data)
-
-        st.dataframe(
-            expense_df,
-            use_container_width=True,
-            hide_index=True
-        )
-
-        # ==================================================
-        # CATEGORY VALIDATION
-        # ==================================================
-        
-        st.subheader("🔍 Category Validation")
-        
-        CATEGORY_MAP = {
-            1: "Air Ticket",
-            2: "Train Tickets",
-            3: "Hotel",
-            4: "Food",
-            5: "Car Rental",
-            6: "Daily Rental Vehicle",
-            7: "Stationery Expenses",
-            8: "Printing Charges",
-            9: "Subscription Charges",
-            10: "Cleaning Charges",
-            11: "Telephone Charges",
-            12: "Courier Charges",
-            13: "Repairs & Maintenance",
-            14: "Loading & Unloading / Transport charges",
-            15: "Diesel Oil",
-            16: "Consumables",
-            17: "Rent",
-            18: "Electricity charges",
-            19: "Other Expense"
-        }
-        
-        validation_rows = []
-        
-        total_pass = 0
-        total_fail = 0
-        
-        sub_sheet_grand_total = 0.0
-        
-        expense_df = expense_df.reset_index(drop=True)
-        
-        for idx, row in expense_df.iterrows():
-        
-            sl_no = idx + 1
-        
-            category = CATEGORY_MAP.get(
-                sl_no,
-                f"Category {sl_no}"
-            )
-        
-            template_amount = safe_float(
-                row["Total Expenses"]
-            )
-        
-            sheet_name = str(sl_no)
-        
-            sheet_total = 0.0
-        
-            # =====================================
-            # SHEET EXISTS
-            # =====================================
-        
-            if sheet_name in excel_file.sheet_names:
-        
-                sub_df = pd.read_excel(
-                    uploaded_file,
-                    sheet_name=sheet_name,
-                    header=None
-                )
-        
-                rows_sub, cols_sub = sub_df.shape
-        
-                found_total = False
-        
-                for r in range(rows_sub):
-        
-                    for c in range(cols_sub):
-        
-                        cell = sub_df.iloc[r, c]
-        
-                        if pd.notna(cell):
-        
-                            text = str(cell).strip().lower()
-        
-                            if (
-                                text == "total"
-                                or "total expenses" in text
-                            ):
-        
-                                numeric_values = []
-        
-                                for cc in range(cols_sub):
-        
-                                    val = sub_df.iloc[r, cc]
-        
-                                    try:
-        
-                                        num = safe_float(val)
-        
-                                        if num > 0:
-                                            numeric_values.append(num)
-        
-                                    except:
-                                        pass
-        
-                                if numeric_values:
-        
-                                    sheet_total = max(
-                                        numeric_values
-                                    )
-        
-                                found_total = True
-                                break
-        
-                    if found_total:
-                        break
-        
-            # =====================================
-            # MISSING SHEET LOGIC
-            # =====================================
-        
-            else:
-        
-                if template_amount == 0:
-        
-                    sheet_total = 0
-        
-                else:
-        
-                    sheet_total = 0
-        
-            sub_sheet_grand_total += sheet_total
-        
-            difference = abs(
-                template_amount - sheet_total
-            )
-        
-            if difference < 0.01:
-        
-                status = "✅ PASS"
-                total_pass += 1
-        
-            else:
-        
-                status = "❌ FAIL"
-                total_fail += 1
-        
-            validation_rows.append({
-        
-                "Sl No": sl_no,
-        
-                "Category": category,
-        
-                "Template Amount":
-                    round(template_amount, 2),
-        
-                "Sheet Total":
-                    round(sheet_total, 2),
-        
-                "Difference":
-                    round(difference, 2),
-        
-                "Status": status
-            })
-        
-        validation_df = pd.DataFrame(
-            validation_rows
-        )
-        
-        st.dataframe(
-            validation_df,
-            use_container_width=True,
-            hide_index=True
-        )
-        # ==================================================
-        # VALIDATION SUMMARY
-        # ==================================================
-
-        st.subheader("📋 Validation Summary")
-
-        s1, s2, s3 = st.columns(3)
-
-        with s1:
-            st.metric(
-                "Total Categories Checked",
-                len(validation_df)
-            )
-
-        with s2:
-            st.metric(
-                "Passed",
-                total_pass
-            )
-
-        with s3:
-            st.metric(
-                "Failed",
-                total_fail
-            )
-
-        # ==================================================
-        # GRAND TOTAL VALIDATION
-        # ==================================================
-
-        st.subheader("💯 Grand Total Validation")
-
-        g1, g2 = st.columns(2)
-
-        with g1:
-
-            st.metric(
-                "Template Expenses Total",
-                f"₹ {expenses_total:,.2f}"
-            )
-
-        with g2:
-
-            st.metric(
-                "Sub-sheet Grand Total",
-                f"₹ {sub_sheet_grand_total:,.2f}"
-            )
-
-        grand_difference = abs(
-            expenses_total - sub_sheet_grand_total
-        )
-
-        if grand_difference < 0.01:
-
-            st.success(
-                "✅ GRAND TOTAL MATCHED"
-            )
+            sheet_total = 0
 
         else:
 
-            st.error(
-                f"❌ GRAND TOTAL MISMATCH | Difference = ₹ {grand_difference:,.2f}"
-            )
+            sheet_total = 0
 
-    except Exception as e:
+    sub_sheet_grand_total += sheet_total
 
-        st.error(f"❌ Error: {e}")
+    difference = abs(
+        template_amount - sheet_total
+    )
+
+    if difference < 0.01:
+
+        status = "✅ PASS"
+        total_pass += 1
+
+    else:
+
+        status = "❌ FAIL"
+        total_fail += 1
+
+    validation_rows.append({
+
+        "Sl No": sl_no,
+
+        "Category": category,
+
+        "Template Amount":
+            round(template_amount, 2),
+
+        "Sheet Total":
+            round(sheet_total, 2),
+
+        "Difference":
+            round(difference, 2),
+
+        "Status": status
+    })
+
+validation_df = pd.DataFrame(
+    validation_rows
+)
+
+st.dataframe(
+    validation_df,
+    use_container_width=True,
+    hide_index=True
+)
