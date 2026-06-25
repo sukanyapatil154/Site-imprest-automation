@@ -6,7 +6,101 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("📋 Site Imprest Validation Tool")
+st.markdown("""
+<style>
+
+.stApp{
+    background:#f5f7fb;
+}
+
+.hero-box{
+    background:white;
+    border-radius:20px;
+    padding:30px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.05);
+    margin-bottom:25px;
+}
+
+.hero-title{
+    font-size:40px;
+    font-weight:700;
+    text-align:center;
+}
+
+.hero-title span{
+    color:#3b82f6;
+}
+
+.hero-sub{
+    text-align:center;
+    color:#666;
+    margin-top:10px;
+    font-size:18px;
+}
+
+.card{
+    background:white;
+    border-radius:16px;
+    padding:20px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.05);
+    border:1px solid #eef2f7;
+}
+
+.small-title{
+    font-size:12px;
+    color:#666;
+    text-transform:uppercase;
+}
+
+.big-value{
+    font-size:20px;
+    font-weight:700;
+    color:#111827;
+}
+
+.metric-card{
+    background:white;
+    border-radius:16px;
+    padding:20px;
+    text-align:center;
+    box-shadow:0 4px 10px rgba(0,0,0,0.05);
+}
+
+.green{
+    color:#10b981;
+}
+
+.orange{
+    color:#f97316;
+}
+
+.blue{
+    color:#2563eb;
+}
+
+.metric-value{
+    font-size:28px;
+    font-weight:bold;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<div class="hero-box">
+
+<div class="hero-title">
+Welcome to <span>Site Imprest</span> Validation Tool
+</div>
+
+<div class="hero-sub">
+Upload the site imprest workbook to automatically validate category-wise totals,
+expenses and supporting sheets.
+</div>
+
+</div>
+""", unsafe_allow_html=True)
+
 
 uploaded_file = st.file_uploader(
     "Upload Site Imprest Excel File",
@@ -112,49 +206,114 @@ if uploaded_file:
         # EMPLOYEE DETAILS DISPLAY
         # ==================================================
 
-        st.subheader("📌 Employee & Site Details")
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-
-            st.write(f"**Project Name:** {project_name}")
-            st.write(f"**Employee Name:** {employee_name}")
-            st.write(f"**Employee ID:** {employee_id}")
-            st.write(f"**Site Name:** {site_name}")
-
-        with col2:
-
-            st.write(f"**Email:** {email}")
-            st.write(f"**Phone Number:** {phone}")
-            st.write(f"**IFSC Code:** {ifsc}")
-            st.write(f"**Account Number:** {account_number}")
-
+        st.subheader("👤 Employee & Site Details")
+        
+        c1,c2,c3,c4 = st.columns(4)
+        
+        with c1:
+            st.markdown(f"""
+            <div class="card">
+            <div class="small-title">PROJECT NAME</div>
+            <div class="big-value">{project_name}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with c2:
+            st.markdown(f"""
+            <div class="card">
+            <div class="small-title">EMPLOYEE NAME</div>
+            <div class="big-value">{employee_name}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with c3:
+            st.markdown(f"""
+            <div class="card">
+            <div class="small-title">EMPLOYEE ID</div>
+            <div class="big-value">{employee_id}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with c4:
+            st.markdown(f"""
+            <div class="card">
+            <div class="small-title">SITE NAME</div>
+            <div class="big-value">{site_name}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        c1,c2,c3,c4 = st.columns(4)
+        
+        with c1:
+            st.markdown(f"""
+            <div class="card">
+            <div class="small-title">ACCOUNT NUMBER</div>
+            <div class="big-value">{account_number}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with c2:
+            st.markdown(f"""
+            <div class="card">
+            <div class="small-title">IFSC CODE</div>
+            <div class="big-value">{ifsc}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with c3:
+            st.markdown(f"""
+            <div class="card">
+            <div class="small-title">EMAIL ID</div>
+            <div class="big-value">{email}</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with c4:
+            st.markdown(f"""
+            <div class="card">
+            <div class="small-title">PHONE NUMBER</div>
+            <div class="big-value">{phone}</div>
+            </div>
+            """, unsafe_allow_html=True)
+    
         # ==================================================
         # FINANCIAL SUMMARY
         # ==================================================
 
         st.subheader("💰 Financial Summary")
-
-        c1, c2, c3 = st.columns(3)
-
+        
+        c1,c2,c3 = st.columns(3)
+        
         with c1:
-            st.metric(
-                "Advance Total",
-                f"₹ {advance_total:,.2f}"
-            )
-
+            st.markdown(f"""
+            <div class="metric-card">
+            <div>ADVANCE TOTAL</div>
+            <div class="metric-value green">
+            ₹ {advance_total:,.2f}
+            </div>
+            </div>
+            """, unsafe_allow_html=True)
+        
         with c2:
-            st.metric(
-                "Expenses Total",
-                f"₹ {expenses_total:,.2f}"
-            )
-
+            st.markdown(f"""
+            <div class="metric-card">
+            <div>EXPENSES TOTAL</div>
+            <div class="metric-value orange">
+            ₹ {expenses_total:,.2f}
+            </div>
+            </div>
+            """, unsafe_allow_html=True)
+        
         with c3:
-            st.metric(
-                "Balance On Hand",
-                f"₹ {balance_on_hand:,.2f}"
-            )
+            st.markdown(f"""
+            <div class="metric-card">
+            <div>BALANCE ON HAND</div>
+            <div class="metric-value blue">
+            ₹ {balance_on_hand:,.2f}
+            </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
 
         # ==================================================
         # EXPENSE TABLE EXTRACTION
