@@ -5,106 +5,146 @@ st.set_page_config(
     page_title="Site Imprest Validation Tool",
     layout="wide"
 )
-
-
-
-
 st.markdown("""
 <style>
 
+/* Main page */
 .stApp{
-    background:#f5f7fb;
+    background: linear-gradient(180deg,#eef4ff,#f8fbff);
 }
 
-.hero-box{
-    background:#b1f2ff;
-    border-radius:20px;
+/* Hide Streamlit menu */
+#MainMenu {visibility:hidden;}
+footer {visibility:hidden;}
+header {visibility:hidden;}
+
+/* Welcome section */
+.hero-card{
+    background:white;
     padding:30px;
-    box-shadow:0 4px 15px rgba(0,0,0,0.05);
+    border-radius:20px;
+    box-shadow:0px 4px 20px rgba(0,0,0,0.08);
     margin-bottom:25px;
 }
 
 .hero-title{
-    font-size:40px;
+    font-size:36px;
     font-weight:700;
-    text-align:center;
+    color:#1f2937;
 }
 
-.hero-title span{
-    color:#3b82f6;
+.hero-blue{
+    color:#4f46e5;
 }
 
-.hero-sub{
-    text-align:center;
-    color:#666;
-    margin-top:10px;
-    font-size:18px;
+.hero-text{
+    color:#6b7280;
+    font-size:16px;
 }
 
-.card{
+/* Section cards */
+.section-card{
     background:white;
-    border-radius:16px;
-    padding:20px;
-    box-shadow:0 4px 10px rgba(0,0,0,0.05);
-    border:1px solid #eef2f7;
+    padding:25px;
+    border-radius:18px;
+    box-shadow:0px 4px 15px rgba(0,0,0,0.06);
+    margin-bottom:20px;
 }
 
-.small-title{
-    font-size:12px;
-    color:#666;
+/* Detail boxes */
+.info-box{
+    background:white;
+    border:1px solid #e5e7eb;
+    border-radius:15px;
+    padding:15px;
+    height:110px;
+    box-shadow:0px 2px 8px rgba(0,0,0,0.05);
+}
+
+.info-title{
+    font-size:11px;
+    color:#6b7280;
     text-transform:uppercase;
+    font-weight:600;
 }
 
-.big-value{
-    font-size:20px;
+.info-value{
+    font-size:22px;
     font-weight:700;
     color:#111827;
 }
 
-.metric-card{
-    background:white;
-    border-radius:16px;
+/* Summary Cards */
+
+.green-card{
+    background:#f0fdf4;
+    border:1px solid #bbf7d0;
+    border-radius:18px;
     padding:20px;
-    text-align:center;
-    box-shadow:0 4px 10px rgba(0,0,0,0.05);
 }
 
-.green{
-    color:#10b981;
+.orange-card{
+    background:#fff7ed;
+    border:1px solid #fed7aa;
+    border-radius:18px;
+    padding:20px;
 }
 
-.orange{
-    color:#f97316;
+.blue-card{
+    background:#eff6ff;
+    border:1px solid #bfdbfe;
+    border-radius:18px;
+    padding:20px;
 }
 
-.blue{
+.green-value{
+    color:#16a34a;
+    font-size:34px;
+    font-weight:700;
+}
+
+.orange-value{
+    color:#ea580c;
+    font-size:34px;
+    font-weight:700;
+}
+
+.blue-value{
     color:#2563eb;
+    font-size:34px;
+    font-weight:700;
 }
 
-.metric-value{
-    font-size:28px;
-    font-weight:bold;
+.section-title{
+    font-size:24px;
+    font-weight:700;
+    margin-bottom:15px;
 }
 
 </style>
 """, unsafe_allow_html=True)
 
+
+
+
+
 st.markdown("""
-<div class="hero-box">
-
-<div class="hero-title">
-Welcome to <span>Site Imprest</span> Validation Tool
-</div>
-
-<div class="hero-sub">
-Upload the site imprest workbook to automatically validate category-wise totals,
-expenses and supporting sheets.
-</div>
-
+<div class='hero-card'>
+    <div class='hero-title'>
+        Welcome to <span class='hero-blue'>Site Imprest</span> Validation Tool
+    </div>
+    <br>
+    <div class='hero-text'>
+        Upload the site imprest Excel workbook to automatically extract employee details,
+        expense information and validate category-wise totals.
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
 
+
+
+# For uploading file
 uploaded_file = st.file_uploader(
     "Upload Site Imprest Excel File",
     type=["xlsx", "xlsm"]
