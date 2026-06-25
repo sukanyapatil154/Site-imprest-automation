@@ -121,6 +121,8 @@ header {visibility:hidden;}
 """, unsafe_allow_html=True)
 
 
+
+
 st.markdown("""
 <style>
 
@@ -129,7 +131,7 @@ st.markdown("""
 }
 
 .hero-box{
-    background:Blue;
+    background:#b1f2ff;
     border-radius:20px;
     padding:30px;
     box-shadow:0 4px 15px rgba(0,0,0,0.05);
