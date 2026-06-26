@@ -249,7 +249,7 @@ if uploaded_file:
             get_value_after_label("Balance on hand")
         )
 
-        st.success("✅ Template Sheet Extracted Successfully")
+        st.success("✅ Workbook Extracted Successfully")
 
         # ==================================================
         # EMPLOYEE DETAILS DISPLAY
@@ -456,7 +456,15 @@ if uploaded_file:
         # EXPENSE TABLE EXTRACTION
         # ==================================================
 
-        st.subheader("📊 Expense Details")
+        st.markdown("""
+        <h3 style="
+        font-size:26px;
+        font-weight:700;
+        color:#1f2937;
+        margin-bottom:18px;">
+        📊 Expense Details
+        </h3>
+        """, unsafe_allow_html=True)
 
         rows, cols = df.shape
 
@@ -534,7 +542,15 @@ if uploaded_file:
         # CATEGORY VALIDATION
         # ==================================================
         
-        st.subheader("🔍 Category Validation")
+        st.markdown("""
+        <h3 style="
+        font-size:26px;
+        font-weight:700;
+        color:#1f2937;
+        margin-bottom:18px;">
+        🔍 Category Validation
+        </h3>
+        """, unsafe_allow_html=True)
         
         CATEGORY_MAP = {
             1: "Air Ticket",
