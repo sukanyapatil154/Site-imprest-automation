@@ -346,7 +346,15 @@ if uploaded_file:
         # FINANCIAL SUMMARY
         # ==================================================
 
-        st.markdown("## 💰 Financial Summary")
+        st.markdown("""
+        <h3 style="
+        font-size:26px;
+        font-weight:700;
+        color:#1f2937;
+        margin-bottom:18px;">
+        💰 Financial Summary
+        </h3>
+        """, unsafe_allow_html=True)
         
         c1,c2,c3=st.columns(3)
         
