@@ -251,7 +251,7 @@ if uploaded_file:
 
         st.markdown("""
         <h3 style="
-        font-size:28px;
+        font-size:26px;
         font-weight:700;
         color:#1f2937;
         margin-bottom:18px;">
@@ -260,80 +260,80 @@ if uploaded_file:
         """, unsafe_allow_html=True)
         
         cards = [
-        ("🏢","Project Name",project_name,"#6366f1","#eef2ff"),
-        ("👤","Name",employee_name,"#22c55e","#ecfdf5"),
-        ("🆔","EMP ID",employee_id,"#38bdf8","#eff6ff"),
-        ("📍","Site Name",site_name,"#a855f7","#faf5ff"),
-        ("🏦","Account Number",account_number,"#f59e0b","#fff7ed"),
-        ("🏛️","IFSC Code",ifsc,"#ef4444","#fef2f2"),
-        ("📧","Email ID",email,"#3b82f6","#eff6ff"),
-        ("📞","Phone Number",phone,"#22c55e","#ecfdf5")
+        ("🏢","PROJECT NAME",project_name,"#EEF2FF"),
+        ("👤","NAME",employee_name,"#ECFDF5"),
+        ("🆔","EMP ID",employee_id,"#EFF6FF"),
+        ("📍","SITE NAME",site_name,"#FAF5FF"),
+        ("🏦","ACCOUNT NUMBER",account_number,"#FFF7ED"),
+        ("🏛️","IFSC CODE",ifsc,"#FEF2F2"),
+        ("📧","EMAIL ID",email,"#EFF6FF"),
+        ("📞","PHONE NUMBER",phone,"#ECFDF5")
         ]
         
         cols = st.columns(4)
         
         for i, card in enumerate(cards):
         
-            icon, title, value, color, bg = card
+            icon, title, value, bg = card
         
             with cols[i % 4]:
         
-                # Slightly reduce font size for long values
-                value_size = "17px"
-                if len(str(value)) > 25:
-                    value_size = "15px"
+                # Smaller font for long text
+                size = 17
+                if len(str(value)) > 20:
+                    size = 15
+                if len(str(value)) > 35:
+                    size = 13
         
-                st.markdown(f"""
-                <div style="
-                    background:white;
-                    border:1px solid #edf2f7;
-                    border-radius:14px;
-                    padding:14px;
-                    height:108px;
-                    box-shadow:0 2px 10px rgba(0,0,0,.05);
-                ">
+                st.markdown(
+                    f"""
+        <div style="background:#ffffff;
+        border:1px solid #eceff5;
+        border-radius:14px;
+        padding:14px;
+        height:118px;
+        box-shadow:0 2px 10px rgba(0,0,0,.05);">
         
-                    <div style="
-                        width:38px;
-                        height:38px;
-                        border-radius:10px;
-                        background:{bg};
-                        display:flex;
-                        align-items:center;
-                        justify-content:center;
-                        font-size:20px;
-                        margin-bottom:10px;
-                    ">
-                        {icon}
-                    </div>
+        <div style="
+        width:36px;
+        height:36px;
+        background:{bg};
+        border-radius:10px;
+        text-align:center;
+        line-height:36px;
+        font-size:20px;
+        margin-bottom:10px;">
+        {icon}
+        </div>
         
-                    <div style="
-                        font-size:9px;
-                        font-weight:600;
-                        color:#9ca3af;
-                        text-transform:uppercase;
-                        letter-spacing:.5px;
-                        margin-bottom:4px;
-                    ">
-                        {title}
-                    </div>
+        <div style="
+        font-size:9px;
+        color:#8b8b8b;
+        font-weight:600;
+        letter-spacing:.5px;
+        text-transform:uppercase;">
+        {title}
+        </div>
         
-                    <div style="
-                        font-size:{value_size};
-                        font-weight:600;
-                        color:#1f2937;
-                        line-height:1.25;
-                        word-break:break-word;
-                    ">
-                        {value}
-                    </div>
+        <div style="
+        margin-top:5px;
+        font-size:{size}px;
+        font-weight:600;
+        color:#1f2937;
+        line-height:1.25;
+        overflow-wrap:anywhere;">
+        {value}
+        </div>
         
-                </div>
-                """, unsafe_allow_html=True)
+        </div>
+        """,
+                    unsafe_allow_html=True
+                )
         
             if i == 3:
-                st.markdown("<div style='margin-bottom:12px'></div>", unsafe_allow_html=True)
+                st.write("")
                 cols = st.columns(4)
+                
         
     
         # ==================================================
