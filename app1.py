@@ -249,39 +249,44 @@ if uploaded_file:
         # EMPLOYEE DETAILS DISPLAY
         # ==================================================
 
-        st.subheader("👤 Employee & Site Details")
+         st.markdown("""
+        <div class='section-card'>
+        <div class='section-title'>
+        👤 Employee & Site Details
+        </div>
+        """, unsafe_allow_html=True)
         
         c1,c2,c3,c4 = st.columns(4)
         
         with c1:
             st.markdown(f"""
-            <div class="card">
-            <div class="small-title">PROJECT NAME</div>
-            <div class="big-value">{project_name}</div>
+            <div class='info-box'>
+                <div class='info-title'>Project Name</div>
+                <div class='info-value'>{project_name}</div>
             </div>
             """, unsafe_allow_html=True)
         
         with c2:
             st.markdown(f"""
-            <div class="card">
-            <div class="small-title">EMPLOYEE NAME</div>
-            <div class="big-value">{employee_name}</div>
+            <div class='info-box'>
+                <div class='info-title'>Name</div>
+                <div class='info-value'>{employee_name}</div>
             </div>
             """, unsafe_allow_html=True)
         
         with c3:
             st.markdown(f"""
-            <div class="card">
-            <div class="small-title">EMPLOYEE ID</div>
-            <div class="big-value">{employee_id}</div>
+            <div class='info-box'>
+                <div class='info-title'>EMP ID</div>
+                <div class='info-value'>{employee_id}</div>
             </div>
             """, unsafe_allow_html=True)
         
         with c4:
             st.markdown(f"""
-            <div class="card">
-            <div class="small-title">SITE NAME</div>
-            <div class="big-value">{site_name}</div>
+            <div class='info-box'>
+                <div class='info-title'>Site Name</div>
+                <div class='info-value'>{site_name}</div>
             </div>
             """, unsafe_allow_html=True)
         
@@ -289,35 +294,39 @@ if uploaded_file:
         
         with c1:
             st.markdown(f"""
-            <div class="card">
-            <div class="small-title">ACCOUNT NUMBER</div>
-            <div class="big-value">{account_number}</div>
+            <div class='info-box'>
+                <div class='info-title'>Account Number</div>
+                <div class='info-value'>{account_number}</div>
             </div>
             """, unsafe_allow_html=True)
         
         with c2:
             st.markdown(f"""
-            <div class="card">
-            <div class="small-title">IFSC CODE</div>
-            <div class="big-value">{ifsc}</div>
+            <div class='info-box'>
+                <div class='info-title'>IFSC Code</div>
+                <div class='info-value'>{ifsc}</div>
             </div>
             """, unsafe_allow_html=True)
         
         with c3:
             st.markdown(f"""
-            <div class="card">
-            <div class="small-title">EMAIL ID</div>
-            <div class="big-value">{email}</div>
+            <div class='info-box'>
+                <div class='info-title'>Email ID</div>
+                <div class='info-value'>{email}</div>
             </div>
             """, unsafe_allow_html=True)
         
         with c4:
             st.markdown(f"""
-            <div class="card">
-            <div class="small-title">PHONE NUMBER</div>
-            <div class="big-value">{phone}</div>
+            <div class='info-box'>
+                <div class='info-title'>Phone Number</div>
+                <div class='info-value'>{phone}</div>
             </div>
             """, unsafe_allow_html=True)
+        
+        st.markdown("</div>", unsafe_allow_html=True)
+
+
     
         # ==================================================
         # FINANCIAL SUMMARY
