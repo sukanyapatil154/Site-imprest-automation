@@ -705,8 +705,17 @@ if uploaded_file:
         # VALIDATION SUMMARY
         # ==================================================
 
-        st.markdown("## 📋 Validation Summary")
-        
+        st.markdown("""
+        <h3 style="
+        font-size:26px;
+        font-weight:700;
+        color:#1f2937;
+        margin-bottom:18px;">
+        📋 Validation Summary
+        </h3>
+        """, unsafe_allow_html=True)
+
+
         c1,c2,c3=st.columns(3)
         
         with c1:
@@ -795,7 +804,16 @@ if uploaded_file:
         # GRAND TOTAL VALIDATION
         # ==================================================
 
-        st.markdown("## ✅ Grand Total Validation")
+        st.markdown("""
+        <h3 style="
+        font-size:26px;
+        font-weight:700;
+        color:#1f2937;
+        margin-bottom:18px;">
+        ✅ Grand Total Validation
+        </h3>
+        """, unsafe_allow_html=True)
+
         
         match = abs(expenses_total - sub_sheet_grand_total) < 0.01
         
