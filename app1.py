@@ -249,61 +249,92 @@ if uploaded_file:
         # EMPLOYEE DETAILS DISPLAY
         # ==================================================
 
-        st.markdown("## 👤 Employee & Site Details")
+        st.markdown("""
+        <h3 style="
+        font-size:28px;
+        font-weight:700;
+        color:#1f2937;
+        margin-bottom:18px;">
+        👤 Employee & Site Details
+        </h3>
+        """, unsafe_allow_html=True)
         
         cards = [
-        ("🏢","Project Name",project_name,"#6366f1"),
-        ("👤","Name",employee_name,"#22c55e"),
-        ("🆔","EMP ID",employee_id,"#38bdf8"),
-        ("📍","Site Name",site_name,"#a855f7"),
-        ("🏦","Account Number",account_number,"#f59e0b"),
-        ("🏛️","IFSC Code",ifsc,"#ef4444"),
-        ("📧","Email ID",email,"#3b82f6"),
-        ("📞","Phone Number",phone,"#22c55e")
+        ("🏢","Project Name",project_name,"#6366f1","#eef2ff"),
+        ("👤","Name",employee_name,"#22c55e","#ecfdf5"),
+        ("🆔","EMP ID",employee_id,"#38bdf8","#eff6ff"),
+        ("📍","Site Name",site_name,"#a855f7","#faf5ff"),
+        ("🏦","Account Number",account_number,"#f59e0b","#fff7ed"),
+        ("🏛️","IFSC Code",ifsc,"#ef4444","#fef2f2"),
+        ("📧","Email ID",email,"#3b82f6","#eff6ff"),
+        ("📞","Phone Number",phone,"#22c55e","#ecfdf5")
         ]
         
         cols = st.columns(4)
         
-        for i,card in enumerate(cards):
+        for i, card in enumerate(cards):
         
-            icon,title,value,color = card
+            icon, title, value, color, bg = card
         
-            with cols[i%4]:
+            with cols[i % 4]:
+        
+                # Slightly reduce font size for long values
+                value_size = "17px"
+                if len(str(value)) > 25:
+                    value_size = "15px"
         
                 st.markdown(f"""
                 <div style="
-                background:white;
-                padding:18px;
-                border-radius:16px;
-                border:1px solid #edf2f7;
-                box-shadow:0 3px 12px rgba(0,0,0,.05);
-                height:120px;
+                    background:white;
+                    border:1px solid #edf2f7;
+                    border-radius:14px;
+                    padding:14px;
+                    height:108px;
+                    box-shadow:0 2px 10px rgba(0,0,0,.05);
                 ">
         
-                <div style="font-size:28px;color:{color};">{icon}</div>
+                    <div style="
+                        width:38px;
+                        height:38px;
+                        border-radius:10px;
+                        background:{bg};
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                        font-size:20px;
+                        margin-bottom:10px;
+                    ">
+                        {icon}
+                    </div>
         
-                <div style="
-                color:#8b8b8b;
-                font-size:11px;
-                text-transform:uppercase;
-                margin-top:6px;
-                ">{title}</div>
+                    <div style="
+                        font-size:9px;
+                        font-weight:600;
+                        color:#9ca3af;
+                        text-transform:uppercase;
+                        letter-spacing:.5px;
+                        margin-bottom:4px;
+                    ">
+                        {title}
+                    </div>
         
-                <div style="
-                font-size:21px;
-                font-weight:700;
-                margin-top:6px;
-                color:#1f2937;
-                ">{value}</div>
+                    <div style="
+                        font-size:{value_size};
+                        font-weight:600;
+                        color:#1f2937;
+                        line-height:1.25;
+                        word-break:break-word;
+                    ">
+                        {value}
+                    </div>
         
                 </div>
-                """,
-                unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
         
-            if i==3:
-                cols=st.columns(4)
-
-
+            if i == 3:
+                st.markdown("<div style='margin-bottom:12px'></div>", unsafe_allow_html=True)
+                cols = st.columns(4)
+        
     
         # ==================================================
         # FINANCIAL SUMMARY
