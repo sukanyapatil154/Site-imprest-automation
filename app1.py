@@ -20,7 +20,7 @@ header {visibility:hidden;}
 
 /* Welcome section */
 .hero-card{
-    background:d8f9ff;
+    background:white;
     padding:30px;
     border-radius:20px;
     box-shadow:0px 4px 20px rgba(0,0,0,0.08);
