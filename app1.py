@@ -249,7 +249,7 @@ if uploaded_file:
         # EMPLOYEE DETAILS DISPLAY
         # ==================================================
 
-         st.markdown("""
+        st.markdown("""
         <div class='section-card'>
         <div class='section-title'>
         👤 Employee & Site Details
