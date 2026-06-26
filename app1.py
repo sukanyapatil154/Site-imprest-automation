@@ -752,45 +752,47 @@ if uploaded_file:
 
         st.markdown("## ✅ Grand Total Validation")
         
-        match = abs(expenses_total-sub_sheet_grand_total)<0.01
+        match = abs(expenses_total - sub_sheet_grand_total) < 0.01
         
-        color="#16a34a" if match else "#dc2626"
-        bg="#ecfdf5" if match else "#fef2f2"
+        color = "#16a34a" if match else "#dc2626"
+        bg = "#ecfdf5" if match else "#fef2f2"
         
-        status="✅ GRAND TOTAL MATCHED" if match else "❌ GRAND TOTAL MISMATCH"
+        status = (
+            "✅ GRAND TOTAL MATCHED"
+            if match
+            else "❌ GRAND TOTAL MISMATCH"
+        )
         
         st.markdown(f"""
-        <div style="
-        background:{bg};
-        padding:28px;
-        border-radius:18px;
-        text-align:center;
-        ">
-        
-        <div style="
-        font-size:17px;
-        color:#777;">
-        Template Total :
-        ₹ {expenses_total:,.2f}
-        </div>
-        
-        <br>
-        
-        <div style="
-        font-size:17px;
-        color:#777;">
-        Sub Sheet Total :
-        ₹ {sub_sheet_grand_total:,.2f}
-        </div>
-        
-        <br>
-        
-        <div style="
-        font-size:28px;
-        font-weight:bold;
-        color:{color};">
-        {status}
-        </div>
-        
-        </div>
-        """,unsafe_allow_html=True)
+<div style="
+background:{bg};
+padding:28px;
+border-radius:18px;
+text-align:center;
+">
+
+<div style="font-size:17px;color:#777;">
+Template Total :
+₹ {expenses_total:,.2f}
+</div>
+
+<br>
+
+<div style="font-size:17px;color:#777;">
+Sub Sheet Total :
+₹ {sub_sheet_grand_total:,.2f}
+</div>
+
+<br>
+
+<div style="
+font-size:28px;
+font-weight:bold;
+color:{color};">
+{status}
+</div>
+
+</div>
+""", unsafe_allow_html=True)
+        except Exception as e:
+        st.error(f"❌ Error: {e}")
