@@ -58,7 +58,13 @@ header {visibility:hidden;}
     border-radius:15px;
     padding:15px;
     height:110px;
-    box-shadow:0px 2px 8px rgba(0,0,0,0.05);
+    box-shadow:0 8px 24px rgba(15,23,42,0.08);
+    transition:0.3s;
+}
+
+.info-box:hover{
+    transform:translateY(-3px);
+    box-shadow:0 15px 35px rgba(0,0,0,0.15);
 }
 
 .info-title{
@@ -292,7 +298,7 @@ if uploaded_file:
         border-radius:14px;
         padding:14px;
         height:118px;
-        box-shadow:0 2px 10px rgba(0,0,0,.05);">
+        box-shadow:0 8px 20px rgba(0,0,0,.08);">
         
         <div style="
         width:36px;
