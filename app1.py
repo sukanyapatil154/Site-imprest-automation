@@ -249,82 +249,59 @@ if uploaded_file:
         # EMPLOYEE DETAILS DISPLAY
         # ==================================================
 
-        st.markdown("""
-        <div class='section-card'>
-        <div class='section-title'>
-        👤 Employee & Site Details
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("## 👤 Employee & Site Details")
         
-        c1,c2,c3,c4 = st.columns(4)
+        cards = [
+        ("🏢","Project Name",project_name,"#6366f1"),
+        ("👤","Name",employee_name,"#22c55e"),
+        ("🆔","EMP ID",employee_id,"#38bdf8"),
+        ("📍","Site Name",site_name,"#a855f7"),
+        ("🏦","Account Number",account_number,"#f59e0b"),
+        ("🏛️","IFSC Code",ifsc,"#ef4444"),
+        ("📧","Email ID",email,"#3b82f6"),
+        ("📞","Phone Number",phone,"#22c55e")
+        ]
         
-        with c1:
-            st.markdown(f"""
-            <div class='info-box'>
-                <div class='info-title'>Project Name</div>
-                <div class='info-value'>{project_name}</div>
-            </div>
-            """, unsafe_allow_html=True)
+        cols = st.columns(4)
         
-        with c2:
-            st.markdown(f"""
-            <div class='info-box'>
-                <div class='info-title'>Name</div>
-                <div class='info-value'>{employee_name}</div>
-            </div>
-            """, unsafe_allow_html=True)
+        for i,card in enumerate(cards):
         
-        with c3:
-            st.markdown(f"""
-            <div class='info-box'>
-                <div class='info-title'>EMP ID</div>
-                <div class='info-value'>{employee_id}</div>
-            </div>
-            """, unsafe_allow_html=True)
+            icon,title,value,color = card
         
-        with c4:
-            st.markdown(f"""
-            <div class='info-box'>
-                <div class='info-title'>Site Name</div>
-                <div class='info-value'>{site_name}</div>
-            </div>
-            """, unsafe_allow_html=True)
+            with cols[i%4]:
         
-        c1,c2,c3,c4 = st.columns(4)
+                st.markdown(f"""
+                <div style="
+                background:white;
+                padding:18px;
+                border-radius:16px;
+                border:1px solid #edf2f7;
+                box-shadow:0 3px 12px rgba(0,0,0,.05);
+                height:120px;
+                ">
         
-        with c1:
-            st.markdown(f"""
-            <div class='info-box'>
-                <div class='info-title'>Account Number</div>
-                <div class='info-value'>{account_number}</div>
-            </div>
-            """, unsafe_allow_html=True)
+                <div style="font-size:28px;color:{color};">{icon}</div>
         
-        with c2:
-            st.markdown(f"""
-            <div class='info-box'>
-                <div class='info-title'>IFSC Code</div>
-                <div class='info-value'>{ifsc}</div>
-            </div>
-            """, unsafe_allow_html=True)
+                <div style="
+                color:#8b8b8b;
+                font-size:11px;
+                text-transform:uppercase;
+                margin-top:6px;
+                ">{title}</div>
         
-        with c3:
-            st.markdown(f"""
-            <div class='info-box'>
-                <div class='info-title'>Email ID</div>
-                <div class='info-value'>{email}</div>
-            </div>
-            """, unsafe_allow_html=True)
+                <div style="
+                font-size:21px;
+                font-weight:700;
+                margin-top:6px;
+                color:#1f2937;
+                ">{value}</div>
         
-        with c4:
-            st.markdown(f"""
-            <div class='info-box'>
-                <div class='info-title'>Phone Number</div>
-                <div class='info-value'>{phone}</div>
-            </div>
-            """, unsafe_allow_html=True)
+                </div>
+                """,
+                unsafe_allow_html=True)
         
-        st.markdown("</div>", unsafe_allow_html=True)
+            if i==3:
+                cols=st.columns(4)
 
 
     
@@ -332,39 +309,102 @@ if uploaded_file:
         # FINANCIAL SUMMARY
         # ==================================================
 
-        st.subheader("💰 Financial Summary")
+        st.markdown("## 💰 Financial Summary")
         
-        c1,c2,c3 = st.columns(3)
+        c1,c2,c3=st.columns(3)
         
         with c1:
+        
             st.markdown(f"""
-            <div class="metric-card">
-            <div>ADVANCE TOTAL</div>
-            <div class="metric-value green">
-            ₹ {advance_total:,.2f}
-            </div>
-            </div>
-            """, unsafe_allow_html=True)
+        <div style="
+        background:#f0fdf4;
+        padding:20px;
+        border-radius:18px;
+        border:1px solid #bbf7d0;
+        ">
+        
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+        
+        <div>
+        
+        <div style="font-size:12px;color:#777;">ADVANCE TOTAL</div>
+        
+        <div style="font-size:32px;
+        font-weight:700;
+        color:#16a34a;">
+        ₹ {advance_total:,.2f}
+        </div>
+        
+        </div>
+        
+        <div style="font-size:34px;">💵</div>
+        
+        </div>
+        
+        </div>
+        """,unsafe_allow_html=True)
         
         with c2:
+        
             st.markdown(f"""
-            <div class="metric-card">
-            <div>EXPENSES TOTAL</div>
-            <div class="metric-value orange">
-            ₹ {expenses_total:,.2f}
-            </div>
-            </div>
-            """, unsafe_allow_html=True)
+        <div style="
+        background:#fff7ed;
+        padding:20px;
+        border-radius:18px;
+        border:1px solid #fed7aa;
+        ">
+        
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+        
+        <div>
+        
+        <div style="font-size:12px;color:#777;">EXPENSES TOTAL</div>
+        
+        <div style="font-size:32px;
+        font-weight:700;
+        color:#ea580c;">
+        ₹ {expenses_total:,.2f}
+        </div>
+        
+        </div>
+        
+        <div style="font-size:34px;">📊</div>
+        
+        </div>
+        
+        </div>
+        """,unsafe_allow_html=True)
         
         with c3:
+        
             st.markdown(f"""
-            <div class="metric-card">
-            <div>BALANCE ON HAND</div>
-            <div class="metric-value blue">
-            ₹ {balance_on_hand:,.2f}
-            </div>
-            </div>
-            """, unsafe_allow_html=True)
+        <div style="
+        background:#eff6ff;
+        padding:20px;
+        border-radius:18px;
+        border:1px solid #bfdbfe;
+        ">
+        
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+        
+        <div>
+        
+        <div style="font-size:12px;color:#777;">BALANCE ON HAND</div>
+        
+        <div style="font-size:32px;
+        font-weight:700;
+        color:#2563eb;">
+        ₹ {balance_on_hand:,.2f}
+        </div>
+        
+        </div>
+        
+        <div style="font-size:34px;">💳</div>
+        
+        </div>
+        
+        </div>
+        """,unsafe_allow_html=True)
             
 
         # ==================================================
@@ -620,66 +660,137 @@ if uploaded_file:
         # VALIDATION SUMMARY
         # ==================================================
 
-        st.subheader("📋 Validation Summary")
+        st.markdown("## 📋 Validation Summary")
+        
+        c1,c2,c3=st.columns(3)
+        
+        with c1:
+        
+            st.markdown(f"""
+        <div style="
+        background:#eef2ff;
+        padding:22px;
+        border-radius:18px;
+        ">
+        
+        <div style="font-size:12px;color:#777;">
+        TOTAL CATEGORIES
+        </div>
+        
+        <div style="
+        font-size:38px;
+        font-weight:bold;
+        color:#4f46e5;">
+        {len(validation_df)}
+        </div>
+        
+        <div style="font-size:30px;">
+        📄
+        </div>
+        
+        </div>
+        """,unsafe_allow_html=True)
+        
+        with c2:
+        
+            st.markdown(f"""
+        <div style="
+        background:#f0fdf4;
+        padding:22px;
+        border-radius:18px;
+        ">
+        
+        <div style="font-size:12px;color:#777;">
+        PASSED
+        </div>
+        
+        <div style="
+        font-size:38px;
+        font-weight:bold;
+        color:#16a34a;">
+        {total_pass}
+        </div>
+        
+        <div style="font-size:30px;">
+        ✅
+        </div>
+        
+        </div>
+        """,unsafe_allow_html=True)
+        
+        with c3:
+        
+            st.markdown(f"""
+        <div style="
+        background:#fef2f2;
+        padding:22px;
+        border-radius:18px;
+        ">
+        
+        <div style="font-size:12px;color:#777;">
+        FAILED
+        </div>
+        
+        <div style="
+        font-size:38px;
+        font-weight:bold;
+        color:#ef4444;">
+        {total_fail}
+        </div>
+        
+        <div style="font-size:30px;">
+        ❌
+        </div>
+        
+        </div>
+        """,unsafe_allow_html=True)
 
-        s1, s2, s3 = st.columns(3)
-
-        with s1:
-            st.metric(
-                "Total Categories Checked",
-                len(validation_df)
-            )
-
-        with s2:
-            st.metric(
-                "Passed",
-                total_pass
-            )
-
-        with s3:
-            st.metric(
-                "Failed",
-                total_fail
-            )
-
+    
         # ==================================================
         # GRAND TOTAL VALIDATION
         # ==================================================
 
-        st.subheader("💯 Grand Total Validation")
-
-        g1, g2 = st.columns(2)
-
-        with g1:
-
-            st.metric(
-                "Template Expenses Total",
-                f"₹ {expenses_total:,.2f}"
-            )
-
-        with g2:
-
-            st.metric(
-                "Sub-sheet Grand Total",
-                f"₹ {sub_sheet_grand_total:,.2f}"
-            )
-
-        grand_difference = abs(
-            expenses_total - sub_sheet_grand_total
-        )
-
-        if grand_difference < 0.01:
-
-            st.success(
-                "✅ GRAND TOTAL MATCHED"
-            )
-
-        else:
-
-            st.error(
-                f"❌ GRAND TOTAL MISMATCH | Difference = ₹ {grand_difference:,.2f}"
-            )
-
-    except Exception as e:
-
-        st.error(f"❌ Error: {e}")
+        st.markdown("## ✅ Grand Total Validation")
+        
+        match = abs(expenses_total-sub_sheet_grand_total)<0.01
+        
+        color="#16a34a" if match else "#dc2626"
+        bg="#ecfdf5" if match else "#fef2f2"
+        
+        status="✅ GRAND TOTAL MATCHED" if match else "❌ GRAND TOTAL MISMATCH"
+        
+        st.markdown(f"""
+        <div style="
+        background:{bg};
+        padding:28px;
+        border-radius:18px;
+        text-align:center;
+        ">
+        
+        <div style="
+        font-size:17px;
+        color:#777;">
+        Template Total :
+        ₹ {expenses_total:,.2f}
+        </div>
+        
+        <br>
+        
+        <div style="
+        font-size:17px;
+        color:#777;">
+        Sub Sheet Total :
+        ₹ {sub_sheet_grand_total:,.2f}
+        </div>
+        
+        <br>
+        
+        <div style="
+        font-size:28px;
+        font-weight:bold;
+        color:{color};">
+        {status}
+        </div>
+        
+        </div>
+        """,unsafe_allow_html=True)
