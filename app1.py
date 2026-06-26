@@ -794,5 +794,5 @@ color:{color};">
 
 </div>
 """, unsafe_allow_html=True)
-        except Exception as e:
-        st.error(f"❌ Error: {e}")
+except Exception as e:
+     st.error(f"❌ Error: {e}")
