@@ -1,5 +1,44 @@
+import gspread
+from google.oauth2.service_account import Credentials
+from datetime import datetime
 import streamlit as st
 import pandas as pd
+
+
+
+def upload_to_google_sheet(project_name, employee_name, site_name, amount):
+    try:
+        scope = [
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/drive"
+        ]
+
+        creds = Credentials.from_service_account_info(
+            st.secrets["gcp_service_account"],
+            scopes=scope
+        )
+
+        client = gspread.authorize(creds)
+
+        sheet = client.open("Site Imprest Tracker").worksheet("Sheet1")
+
+        current_date = datetime.now().strftime("%d-%m-%Y")
+
+        sheet.append_row([
+            project_name,
+            employee_name,
+            site_name,
+            amount,
+            current_date
+        ])
+
+        return True
+
+    except Exception as e:
+        st.error(f"Google Sheet Error: {e}")
+        return False
+
+
 
 st.set_page_config(
     page_title="Site Imprest Validation Tool",
@@ -873,5 +912,22 @@ color:{color};">
 
 </div>
 """, unsafe_allow_html=True)
+
+        
+        st.divider()
+        
+        if st.button("📤 Export to Google Sheet", use_container_width=True):
+        
+            success = upload_to_google_sheet(
+                project_name,
+                employee_name,
+                site_name,
+                expenses_total
+            )
+        
+            if success:
+                st.success("✅ Data exported successfully to Google Sheet.")
+
+    
     except Exception as e:
          st.error(f"❌ Error: {e}")
