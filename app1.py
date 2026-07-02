@@ -928,6 +928,30 @@ color:{color};">
             if success:
                 st.success("✅ Data exported successfully to Google Sheet.")
 
+
+        st.markdown("---")
+        
+        st.markdown(
+            """
+        ### 📊 Open Master Tracker
+        
+        <a href="https://docs.google.com/spreadsheets/d/1dEcDpFykiwR4FkbI9Td0nOM7h1VmUSV131FDdfo8ahY/edit?usp=sharing" target="_blank">
+        <button style="
+        background:#16a34a;
+        color:white;
+        padding:10px 22px;
+        border:none;
+        border-radius:10px;
+        font-size:16px;
+        cursor:pointer;
+        ">
+        📂 Open Google Sheet
+        </button>
+        </a>
+        """,
+        unsafe_allow_html=True
+        )
+
     
     except Exception as e:
          st.error(f"❌ Error: {e}")
