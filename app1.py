@@ -41,7 +41,7 @@ def upload_to_google_sheet(project_name, employee_name, site_name, amount):
 
 
 st.set_page_config(
-    page_title="Site Imprest Validation Tool",
+    page_title="Site  Validation Tool",
     layout="wide"
 )
 st.markdown("""
