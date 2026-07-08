@@ -41,7 +41,7 @@ def upload_to_google_sheet(project_name, employee_name, site_name, amount):
 
 
 st.set_page_config(
-    page_title="Site  Validation Tool",
+    page_title="Site Imprest Validation Tool",
     layout="wide"
 )
 st.markdown("""
@@ -176,7 +176,7 @@ header {visibility:hidden;}
 st.markdown("""
 <div class='hero-card'>
     <div class='hero-title'>
-        Welcome to <span class='hero-blue'>Site Imprest</span> Validation Tool
+        Welcome to <span class='hero-blue'>Site </span> Validation Tool
     </div>
     <br>
     <div class='hero-text'>
