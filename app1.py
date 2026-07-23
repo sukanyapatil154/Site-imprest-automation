@@ -935,6 +935,50 @@ color:{color};">
 """, unsafe_allow_html=True)
 
 
+        # ============================================================
+        # BILL VALIDATION
+        # (Only if Grand Total Matched)
+        # ============================================================
+        
+        if match:
+        
+            st.success("✅ Category Validation Passed. Please upload Bills Workbook.")
+        
+            bills_file = st.file_uploader(
+                "Upload Bills Workbook",
+                type=["xlsx"],
+                key="bill_upload"
+            )
+        
+            if bills_file:
+        
+                bills_df = pd.read_excel(bills_file)
+        
+                bills_df.columns = bills_df.columns.str.strip()
+        
+                validation_results = []
+        
+                total_bill_pass = 0
+                total_bill_fail = 0
+        
+                for _, bill in bills_df.iterrows():
+        
+                    bill_no = str(bill["Bill Number"]).strip()
+        
+                    bill_amount = safe_float(bill["Bill Amount"])
+        
+                    category_code = str(bill["Category"]).strip().upper()
+        
+                    category_number = category_code.replace("CAT-", "")
+        
+                    sheet_name = category_number
+        
+                    found = False
+        
+                    amount_match = False
+
+
+        
         #CHANGED-------------------------------------------------
         st.divider()
         
