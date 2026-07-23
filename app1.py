@@ -937,23 +937,24 @@ color:{color};">
 
         # ============================================================
         # BILL VALIDATION
-        # (Only if Grand Total Matched)
         # ============================================================
         
-        if match:
+        st.divider()
         
-            st.success("✅ Category Validation Passed. Please upload Bills Workbook.")
+        if total_fail == 0 and match:
+        
+            st.success("✅ Workbook validation passed successfully.")
+            st.info("📂 Please upload the Bills Workbook.")
         
             bills_file = st.file_uploader(
                 "Upload Bills Workbook",
                 type=["xlsx"],
-                key="bill_upload"
+                key="bill_validation"
             )
         
             if bills_file:
         
                 bills_df = pd.read_excel(bills_file)
-        
                 bills_df.columns = bills_df.columns.str.strip()
         
                 validation_results = []
@@ -969,186 +970,149 @@ color:{color};">
         
                     category_code = str(bill["Category"]).strip().upper()
         
-                    category_number = category_code.replace("CAT-", "")
-        
-                    sheet_name = category_number
+                    sheet_name = category_code.replace("CAT-", "")
         
                     found = False
-        
                     amount_match = False
-#CHANGED----------------------------------------------------------------
-        # ---------------------------------------------
-        # Open corresponding category sheet
-        # ---------------------------------------------
-
-        if sheet_name in excel_file.sheet_names:
-
-            sub_df = pd.read_excel(
-                uploaded_file,
-                sheet_name=sheet_name,
-                header=None
-            )
-
-            rows_sub, cols_sub = sub_df.shape
-
-            bill_col = None
-            amount_col = None
-
-            # ---------------------------------------------
-            # Find Bill Number & Amount columns
-            # ---------------------------------------------
-
-            for r in range(rows_sub):
-
-                for c in range(cols_sub):
-
-                    value = sub_df.iloc[r, c]
-
-                    if pd.notna(value):
-
-                        txt = str(value).strip().lower()
-
-                        if "bill number" in txt:
-                            bill_col = c
-
-                        if (
-                            "bill amount" in txt
-                            or "amount" == txt
-                        ):
-                            amount_col = c
-
-                if bill_col is not None and amount_col is not None:
-                    header_row = r
-                    break
-
-            # ---------------------------------------------
-            # Compare all rows
-            # ---------------------------------------------
-
-            if bill_col is not None and amount_col is not None:
-
-                for rr in range(header_row + 1, rows_sub):
-
-                    excel_bill = sub_df.iloc[rr, bill_col]
-
-                    if pd.isna(excel_bill):
-                        continue
-
-                    excel_bill = str(excel_bill).strip()
-
-                    if excel_bill == bill_no:
-
-                        found = True
-
-                        excel_amount = safe_float(
-                            sub_df.iloc[rr, amount_col]
+        
+                    # ---------------------------------------
+                    # Open Corresponding Category Sheet
+                    # ---------------------------------------
+        
+                    if sheet_name in excel_file.sheet_names:
+        
+                        sub_df = pd.read_excel(
+                            uploaded_file,
+                            sheet_name=sheet_name,
+                            header=None
                         )
-
-                        if abs(excel_amount - bill_amount) < 0.01:
-                            amount_match = True
-
-                        break
-
-        # ---------------------------------------------
-        # Decide Status
-        # ---------------------------------------------
-
-        if found and amount_match:
-
-            status = "✅ PASS"
-
-            total_bill_pass += 1
-
-        elif found:
-
-            status = "❌ Amount Mismatch"
-
-            total_bill_fail += 1
-
-        else:
-
-            status = "❌ Bill Not Found"
-
-            total_bill_fail += 1
-
-        validation_results.append({
-
-            "Category": category_code,
-
-            "Bill Number": bill_no,
-
-            "Bill Amount": bill_amount,
-
-            "Status": status
-
-        })
         
-    bill_validation_df = pd.DataFrame(validation_results)
-
-    st.markdown("""
-    <h3 style="
-    font-size:26px;
-    font-weight:700;
-    color:#1f2937;">
-    🧾 Bills Validation
-    </h3>
-    """, unsafe_allow_html=True)
-
-    st.dataframe(
-        bill_validation_df,
-        use_container_width=True,
-        hide_index=True
-    )
-    st.markdown("""
-    <h3 style="
-    font-size:26px;
-    font-weight:700;
-    color:#1f2937;">
-    📋 Bills Validation Summary
-    </h3>
-    """, unsafe_allow_html=True)
-
-    c1, c2 = st.columns(2)
-
-    with c1:
-
-        st.success(f"✅ Bills Passed : {total_bill_pass}")
-
-    with c2:
-
-        st.error(f"❌ Bills Failed : {total_bill_fail}")
-
+                        rows_sub, cols_sub = sub_df.shape
         
-
+                        bill_col = None
+                        amount_col = None
+                        header_row = None
         
-        #CHANGED-------------------------------------------------
-        st.divider()
+                        # ---------------------------------------
+                        # Find Bill Number & Bill Amount columns
+                        # ---------------------------------------
         
-        # ==================================================
-        # PROCEED TO BILL VALIDATION ONLY IF
-        # CATEGORY VALIDATION & GRAND TOTAL PASSED
-        # ==================================================
+                        for r in range(rows_sub):
         
-        if total_fail == 0 and match:
+                            for c in range(cols_sub):
         
-            st.success("✅ Workbook validation completed successfully.")
+                                cell = sub_df.iloc[r, c]
         
-            st.info("📂 Upload the Bills Workbook to begin Bill Validation.")
+                                if pd.isna(cell):
+                                    continue
         
-            bills_file = st.file_uploader(
-                "Upload Bills Workbook",
-                type=["xlsx"],
-                key="bill_validation"
-            )
+                                text = str(cell).strip().lower()
+        
+                                if "bill number" in text:
+                                    bill_col = c
+        
+                                elif "bill amount" in text:
+                                    amount_col = c
+        
+                            if bill_col is not None and amount_col is not None:
+                                header_row = r
+                                break
+        
+                        # ---------------------------------------
+                        # Compare Bills
+                        # ---------------------------------------
+        
+                        if header_row is not None:
+        
+                            for rr in range(header_row + 1, rows_sub):
+        
+                                excel_bill = sub_df.iloc[rr, bill_col]
+        
+                                if pd.isna(excel_bill):
+                                    continue
+        
+                                excel_bill = str(excel_bill).strip()
+        
+                                if excel_bill == bill_no:
+        
+                                    found = True
+        
+                                    excel_amount = safe_float(
+                                        sub_df.iloc[rr, amount_col]
+                                    )
+        
+                                    if abs(excel_amount - bill_amount) < 0.01:
+                                        amount_match = True
+        
+                                    break
+        
+                    # ---------------------------------------
+                    # Decide Status
+                    # ---------------------------------------
+        
+                    if found and amount_match:
+        
+                        status = "✅ PASS"
+                        total_bill_pass += 1
+        
+                    elif found:
+        
+                        status = "❌ Amount Mismatch"
+                        total_bill_fail += 1
+        
+                    else:
+        
+                        status = "❌ Bill Not Found"
+                        total_bill_fail += 1
+        
+                    validation_results.append({
+        
+                        "Category": category_code,
+                        "Bill Number": bill_no,
+                        "Bill Amount": bill_amount,
+                        "Status": status
+        
+                    })
+        
+                bill_validation_df = pd.DataFrame(validation_results)
+        
+                st.markdown("""
+                <h3 style="
+                font-size:26px;
+                font-weight:700;
+                color:#1f2937;">
+                🧾 Bills Validation
+                </h3>
+                """, unsafe_allow_html=True)
+        
+                st.dataframe(
+                    bill_validation_df,
+                    use_container_width=True,
+                    hide_index=True
+                )
+        
+                st.markdown("""
+                <h3 style="
+                font-size:26px;
+                font-weight:700;
+                color:#1f2937;">
+                📋 Bills Validation Summary
+                </h3>
+                """, unsafe_allow_html=True)
+        
+                c1, c2 = st.columns(2)
+        
+                with c1:
+                    st.success(f"✅ Bills Passed : {total_bill_pass}")
+        
+                with c2:
+                    st.error(f"❌ Bills Failed : {total_bill_fail}")
         
         else:
         
             st.error(
-                "❌ Bill Validation is disabled because "
-                "the uploaded Site Imprest Workbook contains validation errors."
+                "❌ Bill Validation is disabled because Category Validation or Grand Total Validation failed."
             )
-        
-            bills_file = None
         
         
         # ==================================================
