@@ -253,7 +253,7 @@ if uploaded_file:
                                 if len(parts) > 1:
                                     return parts[1].strip()
 
-                            for nc in range(c + 1, min(c + 4, cols)):
+                            for nc in range(c + 1, min(c + 8, cols)):
 
                                 val = df.iloc[r, nc]
 
