@@ -934,8 +934,40 @@ color:{color};">
 </div>
 """, unsafe_allow_html=True)
 
-        
+
+        #CHANGED-------------------------------------------------
         st.divider()
+        
+        # ==================================================
+        # PROCEED TO BILL VALIDATION ONLY IF
+        # CATEGORY VALIDATION & GRAND TOTAL PASSED
+        # ==================================================
+        
+        if total_fail == 0 and match:
+        
+            st.success("✅ Workbook validation completed successfully.")
+        
+            st.info("📂 Upload the Bills Workbook to begin Bill Validation.")
+        
+            bills_file = st.file_uploader(
+                "Upload Bills Workbook",
+                type=["xlsx"],
+                key="bill_validation"
+            )
+        
+        else:
+        
+            st.error(
+                "❌ Bill Validation is disabled because "
+                "the uploaded Site Imprest Workbook contains validation errors."
+            )
+        
+            bills_file = None
+        
+        
+        # ==================================================
+        # EXPORT BUTTON
+        # ==================================================
         
         if st.button("📤 Export to Google Sheet", use_container_width=True):
         
@@ -948,7 +980,7 @@ color:{color};">
         
             if success:
                 st.success("✅ Data exported successfully to Google Sheet.")
-
+                
 
         st.markdown("---")
         
