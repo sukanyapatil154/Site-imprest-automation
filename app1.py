@@ -976,7 +976,149 @@ color:{color};">
                     found = False
         
                     amount_match = False
+#CHANGED----------------------------------------------------------------
+            # ---------------------------------------------
+            # Open corresponding category sheet
+            # ---------------------------------------------
 
+            if sheet_name in excel_file.sheet_names:
+
+                sub_df = pd.read_excel(
+                    uploaded_file,
+                    sheet_name=sheet_name,
+                    header=None
+                )
+
+                rows_sub, cols_sub = sub_df.shape
+
+                bill_col = None
+                amount_col = None
+
+                # ---------------------------------------------
+                # Find Bill Number & Amount columns
+                # ---------------------------------------------
+
+                for r in range(rows_sub):
+
+                    for c in range(cols_sub):
+
+                        value = sub_df.iloc[r, c]
+
+                        if pd.notna(value):
+
+                            txt = str(value).strip().lower()
+
+                            if "bill number" in txt:
+                                bill_col = c
+
+                            if (
+                                "bill amount" in txt
+                                or "amount" == txt
+                            ):
+                                amount_col = c
+
+                    if bill_col is not None and amount_col is not None:
+                        header_row = r
+                        break
+
+                # ---------------------------------------------
+                # Compare all rows
+                # ---------------------------------------------
+
+                if bill_col is not None and amount_col is not None:
+
+                    for rr in range(header_row + 1, rows_sub):
+
+                        excel_bill = sub_df.iloc[rr, bill_col]
+
+                        if pd.isna(excel_bill):
+                            continue
+
+                        excel_bill = str(excel_bill).strip()
+
+                        if excel_bill == bill_no:
+
+                            found = True
+
+                            excel_amount = safe_float(
+                                sub_df.iloc[rr, amount_col]
+                            )
+
+                            if abs(excel_amount - bill_amount) < 0.01:
+                                amount_match = True
+
+                            break
+
+            # ---------------------------------------------
+            # Decide Status
+            # ---------------------------------------------
+
+            if found and amount_match:
+
+                status = "✅ PASS"
+
+                total_bill_pass += 1
+
+            elif found:
+
+                status = "❌ Amount Mismatch"
+
+                total_bill_fail += 1
+
+            else:
+
+                status = "❌ Bill Not Found"
+
+                total_bill_fail += 1
+
+            validation_results.append({
+
+                "Category": category_code,
+
+                "Bill Number": bill_no,
+
+                "Bill Amount": bill_amount,
+
+                "Status": status
+
+            })
+            
+        bill_validation_df = pd.DataFrame(validation_results)
+
+        st.markdown("""
+        <h3 style="
+        font-size:26px;
+        font-weight:700;
+        color:#1f2937;">
+        🧾 Bills Validation
+        </h3>
+        """, unsafe_allow_html=True)
+
+        st.dataframe(
+            bill_validation_df,
+            use_container_width=True,
+            hide_index=True
+        )
+        st.markdown("""
+        <h3 style="
+        font-size:26px;
+        font-weight:700;
+        color:#1f2937;">
+        📋 Bills Validation Summary
+        </h3>
+        """, unsafe_allow_html=True)
+
+        c1, c2 = st.columns(2)
+
+        with c1:
+
+            st.success(f"✅ Bills Passed : {total_bill_pass}")
+
+        with c2:
+
+            st.error(f"❌ Bills Failed : {total_bill_fail}")
+
+        
 
         
         #CHANGED-------------------------------------------------
