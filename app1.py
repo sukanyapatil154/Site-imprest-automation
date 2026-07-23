@@ -520,10 +520,11 @@ if uploaded_file:
                     if str(value).strip().lower() == "description of expenses":
 
                         header_row = r
-
+             #CHANGED-------------------------------------------------
                         desc_col = c
-                        expense_col = c + 3
-                        approval_col = c + 4
+                        category_col = c + 1
+                        expense_col = c + 4
+                        approval_col = c + 5
 
                         break
 
@@ -541,11 +542,22 @@ if uploaded_file:
                 if pd.isna(description):
                     continue
 
+         #CHANGED---------------------------------------------
                 description = str(description).strip()
-
+                
                 if description.lower().startswith("opening balance"):
                     break
-
+                
+                # Read Category Code
+                category_code = ""
+                
+                if category_col < cols:
+                
+                    val = df.iloc[r, category_col]
+                
+                    if pd.notna(val):
+                        category_code = str(val).strip()
+                
                 total_expense = 0.0
 
                 if expense_col < cols:
@@ -565,6 +577,7 @@ if uploaded_file:
 
                 expense_data.append({
                     "Description of Expenses": description,
+                    "Category Code": category_code,
                     "Total Expenses": total_expense,
                     "Special Approval": special_approval
                 })
@@ -621,21 +634,28 @@ if uploaded_file:
         sub_sheet_grand_total = 0.0
         
         expense_df = expense_df.reset_index(drop=True)
-        
+
+        #CHANGED-----------------------------------
         for idx, row in expense_df.iterrows():
         
-            sl_no = idx + 1
-        
-            category = CATEGORY_MAP.get(
-                sl_no,
-                f"Category {sl_no}"
-            )
+            category_code = row["Category Code"]
         
             template_amount = safe_float(
                 row["Total Expenses"]
             )
         
-            sheet_name = str(sl_no)
+            # Convert CAT-13 -> 13
+            try:
+                sheet_no = int(category_code.split("-")[1])
+            except:
+                sheet_no = idx + 1
+        
+            category = CATEGORY_MAP.get(
+                sheet_no,
+                category_code
+            )
+        
+            sheet_name = str(sheet_no)
         
             sheet_total = 0.0
         
@@ -727,22 +747,23 @@ if uploaded_file:
         
                 status = "❌ FAIL"
                 total_fail += 1
-        
+
+        #CHANGED---------------------------------------
             validation_rows.append({
-        
-                "Sl No": sl_no,
-        
+            
+                "Category Code": category_code,
+            
                 "Category": category,
-        
+            
                 "Template Amount":
                     round(template_amount, 2),
-        
+            
                 "Sheet Total":
                     round(sheet_total, 2),
-        
+            
                 "Difference":
                     round(difference, 2),
-        
+            
                 "Status": status
             })
         
