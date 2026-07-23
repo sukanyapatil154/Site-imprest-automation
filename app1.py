@@ -977,146 +977,146 @@ color:{color};">
         
                     amount_match = False
 #CHANGED----------------------------------------------------------------
+        # ---------------------------------------------
+        # Open corresponding category sheet
+        # ---------------------------------------------
+
+        if sheet_name in excel_file.sheet_names:
+
+            sub_df = pd.read_excel(
+                uploaded_file,
+                sheet_name=sheet_name,
+                header=None
+            )
+
+            rows_sub, cols_sub = sub_df.shape
+
+            bill_col = None
+            amount_col = None
+
             # ---------------------------------------------
-            # Open corresponding category sheet
+            # Find Bill Number & Amount columns
             # ---------------------------------------------
 
-            if sheet_name in excel_file.sheet_names:
+            for r in range(rows_sub):
 
-                sub_df = pd.read_excel(
-                    uploaded_file,
-                    sheet_name=sheet_name,
-                    header=None
-                )
+                for c in range(cols_sub):
 
-                rows_sub, cols_sub = sub_df.shape
+                    value = sub_df.iloc[r, c]
 
-                bill_col = None
-                amount_col = None
+                    if pd.notna(value):
 
-                # ---------------------------------------------
-                # Find Bill Number & Amount columns
-                # ---------------------------------------------
+                        txt = str(value).strip().lower()
 
-                for r in range(rows_sub):
+                        if "bill number" in txt:
+                            bill_col = c
 
-                    for c in range(cols_sub):
-
-                        value = sub_df.iloc[r, c]
-
-                        if pd.notna(value):
-
-                            txt = str(value).strip().lower()
-
-                            if "bill number" in txt:
-                                bill_col = c
-
-                            if (
-                                "bill amount" in txt
-                                or "amount" == txt
-                            ):
-                                amount_col = c
-
-                    if bill_col is not None and amount_col is not None:
-                        header_row = r
-                        break
-
-                # ---------------------------------------------
-                # Compare all rows
-                # ---------------------------------------------
+                        if (
+                            "bill amount" in txt
+                            or "amount" == txt
+                        ):
+                            amount_col = c
 
                 if bill_col is not None and amount_col is not None:
-
-                    for rr in range(header_row + 1, rows_sub):
-
-                        excel_bill = sub_df.iloc[rr, bill_col]
-
-                        if pd.isna(excel_bill):
-                            continue
-
-                        excel_bill = str(excel_bill).strip()
-
-                        if excel_bill == bill_no:
-
-                            found = True
-
-                            excel_amount = safe_float(
-                                sub_df.iloc[rr, amount_col]
-                            )
-
-                            if abs(excel_amount - bill_amount) < 0.01:
-                                amount_match = True
-
-                            break
+                    header_row = r
+                    break
 
             # ---------------------------------------------
-            # Decide Status
+            # Compare all rows
             # ---------------------------------------------
 
-            if found and amount_match:
+            if bill_col is not None and amount_col is not None:
 
-                status = "✅ PASS"
+                for rr in range(header_row + 1, rows_sub):
 
-                total_bill_pass += 1
+                    excel_bill = sub_df.iloc[rr, bill_col]
 
-            elif found:
+                    if pd.isna(excel_bill):
+                        continue
 
-                status = "❌ Amount Mismatch"
+                    excel_bill = str(excel_bill).strip()
 
-                total_bill_fail += 1
+                    if excel_bill == bill_no:
 
-            else:
+                        found = True
 
-                status = "❌ Bill Not Found"
+                        excel_amount = safe_float(
+                            sub_df.iloc[rr, amount_col]
+                        )
 
-                total_bill_fail += 1
+                        if abs(excel_amount - bill_amount) < 0.01:
+                            amount_match = True
 
-            validation_results.append({
+                        break
 
-                "Category": category_code,
+        # ---------------------------------------------
+        # Decide Status
+        # ---------------------------------------------
 
-                "Bill Number": bill_no,
+        if found and amount_match:
 
-                "Bill Amount": bill_amount,
+            status = "✅ PASS"
 
-                "Status": status
+            total_bill_pass += 1
 
-            })
-            
-        bill_validation_df = pd.DataFrame(validation_results)
+        elif found:
 
-        st.markdown("""
-        <h3 style="
-        font-size:26px;
-        font-weight:700;
-        color:#1f2937;">
-        🧾 Bills Validation
-        </h3>
-        """, unsafe_allow_html=True)
+            status = "❌ Amount Mismatch"
 
-        st.dataframe(
-            bill_validation_df,
-            use_container_width=True,
-            hide_index=True
-        )
-        st.markdown("""
-        <h3 style="
-        font-size:26px;
-        font-weight:700;
-        color:#1f2937;">
-        📋 Bills Validation Summary
-        </h3>
-        """, unsafe_allow_html=True)
+            total_bill_fail += 1
 
-        c1, c2 = st.columns(2)
+        else:
 
-        with c1:
+            status = "❌ Bill Not Found"
 
-            st.success(f"✅ Bills Passed : {total_bill_pass}")
+            total_bill_fail += 1
 
-        with c2:
+        validation_results.append({
 
-            st.error(f"❌ Bills Failed : {total_bill_fail}")
+            "Category": category_code,
+
+            "Bill Number": bill_no,
+
+            "Bill Amount": bill_amount,
+
+            "Status": status
+
+        })
+        
+    bill_validation_df = pd.DataFrame(validation_results)
+
+    st.markdown("""
+    <h3 style="
+    font-size:26px;
+    font-weight:700;
+    color:#1f2937;">
+    🧾 Bills Validation
+    </h3>
+    """, unsafe_allow_html=True)
+
+    st.dataframe(
+        bill_validation_df,
+        use_container_width=True,
+        hide_index=True
+    )
+    st.markdown("""
+    <h3 style="
+    font-size:26px;
+    font-weight:700;
+    color:#1f2937;">
+    📋 Bills Validation Summary
+    </h3>
+    """, unsafe_allow_html=True)
+
+    c1, c2 = st.columns(2)
+
+    with c1:
+
+        st.success(f"✅ Bills Passed : {total_bill_pass}")
+
+    with c2:
+
+        st.error(f"❌ Bills Failed : {total_bill_fail}")
 
         
 
