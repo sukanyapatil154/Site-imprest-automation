@@ -958,6 +958,10 @@ color:{color};">
                 bills_df = pd.read_excel(bills_file)
         
                 bills_df.columns = bills_df.columns.str.strip()
+                # -------------------------------------------------
+                # Track bills found in sub sheets
+                # -------------------------------------------------
+                matched_bills = set()
         
                 validation_results = []
         
@@ -1101,7 +1105,7 @@ color:{color};">
                                 continue
         
                             bill_found = True
-        
+                            matched_bills.add(uploaded_bill)
                             uploaded_amount = safe_float(
                                 bill["Bill Amount"]
                             )
@@ -1169,7 +1173,60 @@ color:{color};">
                             "Status": status
         
                         })
-        
+
+                    # ====================================================
+                    # CHECK DUPLICATE / EXTRA BILLS
+                    # ====================================================
+                    
+                    duplicate_counts = (
+                        bills_df["Bill Number"]
+                        .astype(str)
+                        .str.strip()
+                        .value_counts()
+                    )
+                    
+                    for _, bill in bills_df.iterrows():
+                    
+                        bill_no = str(bill["Bill Number"]).strip()
+                    
+                        category = str(bill["Category"]).strip().upper()
+                    
+                        amount = safe_float(bill["Bill Amount"])
+                    
+                        # Duplicate bill
+                        if duplicate_counts[bill_no] > 1:
+                    
+                            validation_results.append({
+                    
+                                "Category": category,
+                    
+                                "Bill Number": bill_no,
+                    
+                                "Sheet Amount": "",
+                    
+                                "Bills Workbook Amount": amount,
+                    
+                                "Status": "⚠ Duplicate Bill"
+                    
+                            })
+                    
+                        # Bill exists only in Bills Workbook
+                        elif bill_no not in matched_bills:
+                    
+                            validation_results.append({
+                    
+                                "Category": category,
+                    
+                                "Bill Number": bill_no,
+                    
+                                "Sheet Amount": "",
+                    
+                                "Bills Workbook Amount": amount,
+                    
+                                "Status": "⚠ Additional Bill (Not in Sub Sheet)"
+                    
+                            })
+                
                 bill_validation_df = pd.DataFrame(validation_results)
 
 
