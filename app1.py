@@ -6,6 +6,7 @@ import pandas as pd
 
 
 
+
 def upload_to_google_sheet(project_name, employee_name, site_name, amount):
     try:
         scope = [
@@ -963,6 +964,7 @@ color:{color};">
                 total_bill_pass = 0
                 total_bill_fail = 0
 
+
                 # --------------------------------------------
                 # Category-wise Bills Summary
                 # --------------------------------------------
@@ -1167,99 +1169,115 @@ color:{color};">
                             "Status": status
         
                         })
-
-                    # =====================================================
-                    # CATEGORY-WISE BILLS SUMMARY
-                    # =====================================================
-                    
-                    for cat_no in range(1, 20):
-                    
-                        category_code = f"CAT-{cat_no:02d}"
-                    
-                        # Bills Workbook Total
-                        bills_total = bills_df[
-                            bills_df["Category"].astype(str).str.upper() == category_code
-                        ]["Bill Amount"].apply(safe_float).sum()
-                    
-                        # Sheet Name
-                        sheet_name = str(cat_no)
-                    
-                        if sheet_name not in excel_file.sheet_names:
-                            sheet_name = f"{cat_no:02d}"
-                    
-                        sheet_total = 0
-                    
-                        if sheet_name in excel_file.sheet_names:
-                    
-                            sub_df = pd.read_excel(
-                                uploaded_file,
-                                sheet_name=sheet_name,
-                                header=None
-                            )
-                    
-                            rows_sub, cols_sub = sub_df.shape
-                    
-                            amount_col = None
-                            header_row = None
-                    
-                            # Find Bill Amount Column
-                    
-                            for r in range(rows_sub):
-                    
-                                for c in range(cols_sub):
-                    
-                                    value = sub_df.iloc[r, c]
-                    
-                                    if pd.isna(value):
-                                        continue
-                    
-                                    text = str(value).strip().lower()
-                    
-                                    if "bill amount" in text:
-                    
-                                        amount_col = c
-                                        header_row = r
-                                        break
-                    
-                                if amount_col is not None:
-                                    break
-                    
-                            # Sum all bill amounts
-                    
-                            if amount_col is not None:
-                    
-                                for rr in range(header_row + 1, rows_sub):
-                    
-                                    value = safe_float(
-                                        sub_df.iloc[rr, amount_col]
-                                    )
-                    
-                                    sheet_total += value
-                    
-                        difference = abs(sheet_total - bills_total)
-                    
-                        if difference < 0.01:
-                            status = "✅ PASS"
-                        else:
-                            status = "❌ FAIL"
-                    
-                        category_summary.append({
-                    
-                            "Category Code": category_code,
-                    
-                            "Category": CATEGORY_MAP.get(cat_no),
-                    
-                            "Bills Workbook Total": round(bills_total,2),
-                    
-                            "Sub Sheet Total": round(sheet_total,2),
-                    
-                            "Difference": round(difference,2),
-                    
-                            "Status": status
-                    
-                        })
         
                 bill_validation_df = pd.DataFrame(validation_results)
+
+
+                # =====================================================
+                # CATEGORY-WISE BILLS SUMMARY
+                # =====================================================
+                
+                for cat_no in range(1, 20):
+                
+                    category_code = f"CAT-{cat_no:02d}"
+                
+                    # ---------------- Bills Workbook Total ----------------
+                
+                    bills_total = bills_df[
+                        bills_df["Category"].astype(str).str.upper() == category_code
+                    ]["Bill Amount"].apply(safe_float).sum()
+                
+                    # ---------------- Find Sheet ----------------
+                
+                    possible_sheet_names = [
+                        str(cat_no),
+                        f"{cat_no:02d}",
+                        f"CAT-{cat_no}",
+                        f"CAT-{cat_no:02d}"
+                    ]
+                
+                    sheet_name = None
+                
+                    for s in possible_sheet_names:
+                        if s in excel_file.sheet_names:
+                            sheet_name = s
+                            break
+                
+                    sheet_total = 0
+                
+                    if sheet_name:
+                
+                        sub_df = pd.read_excel(
+                            uploaded_file,
+                            sheet_name=sheet_name,
+                            header=None
+                        )
+                
+                        rows_sub, cols_sub = sub_df.shape
+                
+                        found_total = False
+                
+                        # SAME LOGIC AS CATEGORY VALIDATION
+                        for r in range(rows_sub):
+                
+                            for c in range(cols_sub):
+                
+                                cell = sub_df.iloc[r, c]
+                
+                                if pd.isna(cell):
+                                    continue
+                
+                                text = str(cell).strip().lower()
+                
+                                if text == "total" or "total expenses" in text:
+                
+                                    numeric_values = []
+                
+                                    for cc in range(cols_sub):
+                
+                                        val = sub_df.iloc[r, cc]
+                
+                                        try:
+                                            num = safe_float(val)
+                
+                                            if num > 0:
+                                                numeric_values.append(num)
+                
+                                        except:
+                                            pass
+                
+                                    if numeric_values:
+                
+                                        sheet_total = max(numeric_values)
+                
+                                    found_total = True
+                                    break
+                
+                            if found_total:
+                                break
+                
+                    difference = abs(sheet_total - bills_total)
+                
+                    if difference < 0.01:
+                        status = "✅ PASS"
+                    else:
+                        status = "❌ FAIL"
+                
+                    category_summary.append({
+                
+                        "Category Code": category_code,
+                
+                        "Category": CATEGORY_MAP.get(cat_no),
+                
+                        "Bills Workbook Total": round(bills_total, 2),
+                
+                        "Sub Sheet Total": round(sheet_total, 2),
+                
+                        "Difference": round(difference, 2),
+                
+                        "Status": status
+                
+                    })
         
                 st.markdown("### 🧾 Bills Validation")
         
