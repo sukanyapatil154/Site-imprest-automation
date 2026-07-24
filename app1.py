@@ -969,17 +969,23 @@ color:{color};">
         
                 for cat_no in range(1, 21):
                 
-                    category_code = f"CAT-{cat_no}"
+                    category_code = f"CAT-{cat_no:02d}"
                 
-                    # Try sheet names like 1,2,3...
-                    sheet_name = str(cat_no)
-                
-                    # If not found, try 01,02,03...
-                    if sheet_name not in excel_file.sheet_names:
-                        sheet_name = f"{cat_no:02d}"
-                
-                    # Still not found? Skip this category.
-                    if sheet_name not in excel_file.sheet_names:
+                    possible_sheet_names = [
+                        str(cat_no),
+                        f"{cat_no:02d}",
+                        f"CAT-{cat_no}",
+                        f"CAT-{cat_no:02d}"
+                    ]
+                    
+                    sheet_name = None
+                    
+                    for s in possible_sheet_names:
+                        if s in excel_file.sheet_names:
+                            sheet_name = s
+                            break
+                    
+                    if sheet_name is None:
                         continue
         
                     sub_df = pd.read_excel(
@@ -1073,6 +1079,10 @@ color:{color};">
                             uploaded_category = str(
                                 bill["Category"]
                             ).strip().upper()
+                            
+                            if uploaded_category.startswith("CAT-"):
+                                number = int(uploaded_category.split("-")[1])
+                                uploaded_category = f"CAT-{number:02d}"
         
                             if uploaded_category == category_code:
         
