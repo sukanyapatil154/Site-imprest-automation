@@ -968,11 +968,17 @@ color:{color};">
                 # --------------------------------------------------
         
                 for cat_no in range(1, 21):
-        
-                    sheet_name = str(cat_no)
-        
+                
                     category_code = f"CAT-{cat_no}"
-        
+                
+                    # Try sheet names like 1,2,3...
+                    sheet_name = str(cat_no)
+                
+                    # If not found, try 01,02,03...
+                    if sheet_name not in excel_file.sheet_names:
+                        sheet_name = f"{cat_no:02d}"
+                
+                    # Still not found? Skip this category.
                     if sheet_name not in excel_file.sheet_names:
                         continue
         
@@ -1017,19 +1023,22 @@ color:{color};">
                     if header_row is None:
                         continue
         
-                    # ------------------------------------------
+                     # ------------------------------------------
                     # Read every bill from sub sheet
                     # ------------------------------------------
-        
+                    
                     for rr in range(header_row + 1, rows_sub):
-        
+                    
                         excel_bill = sub_df.iloc[rr, bill_col]
-        
+                    
                         if pd.isna(excel_bill):
                             continue
-        
-                        bill_no = str(excel_bill).strip()
-        
+                    
+                        if pd.api.types.is_number(excel_bill):
+                            bill_no = str(int(excel_bill))
+                        else:
+                            bill_no = str(excel_bill).strip()
+                    
                         sheet_amount = safe_float(
                             sub_df.iloc[rr, amount_col]
                         )
@@ -1045,9 +1054,12 @@ color:{color};">
         
                         for _, bill in bills_df.iterrows():
         
-                            uploaded_bill = str(
-                                bill["Bill Number"]
-                            ).strip()
+                            uploaded_bill_value = bill["Bill Number"]
+                            
+                            if pd.api.types.is_number(uploaded_bill_value):
+                                uploaded_bill = str(int(uploaded_bill_value))
+                            else:
+                                uploaded_bill = str(uploaded_bill_value).strip()
         
                             if uploaded_bill != bill_no:
                                 continue
