@@ -1018,23 +1018,6 @@ color:{color};">
                 for cat_no in range(1, 21):
                 
                     category_code = f"CAT-{cat_no:02d}"
-                    # -----------------------------
-                    # Collect Bills Workbook Bills
-                    # -----------------------------
-                    
-                    bills_category_df = bills_df[
-                        bills_df["Category"].astype(str).str.upper() == category_code
-                    ]
-                    
-                    bills_total = bills_category_df["Bill Amount"].apply(safe_float).sum()
-                    
-                    bills_bill_numbers = set(
-                        bills_category_df["Bill Number"]
-                        .astype(str)
-                        .str.strip()
-                    )
-                    
-                    sheet_bill_numbers = set()
                     possible_sheet_names = [
                         str(cat_no),
                         f"{cat_no:02d}",
@@ -1288,48 +1271,7 @@ color:{color};">
                 
                             if found_total:
                                 break
-                    # ==========================================
-                    # Collect Bill Numbers from Sub Sheet
-                    # ==========================================
-                    
-                    bill_col = None
-                    header_row = None
-                    
-                    for r in range(rows_sub):
-                    
-                        for c in range(cols_sub):
-                    
-                            cell = sub_df.iloc[r, c]
-                    
-                            if pd.isna(cell):
-                                continue
-                    
-                            text = str(cell).strip().lower()
-                    
-                            if "bill number" in text:
-                    
-                                bill_col = c
-                                header_row = r
-                                break
-                    
-                        if bill_col is not None:
-                            break
-                    
-                    if bill_col is not None:
-                    
-                        for rr in range(header_row + 1, rows_sub):
-                    
-                            bill = sub_df.iloc[rr, bill_col]
-                    
-                            if pd.notna(bill):
-                    
-                                sheet_bill_numbers.add(
-                                    str(bill).strip()
-                                )
-                    
-                    extra_bills = bills_bill_numbers - sheet_bill_numbers
-                    
-                    missing_bills = sheet_bill_numbers - bills_bill_numbers                
+          
                     difference = abs(sheet_total - bills_total)
                     
                     if difference < 0.01:
@@ -1341,25 +1283,13 @@ color:{color};">
                     
                         status = "❌ FAIL"
                     
-                        remarks_list = []
+                        if bills_total > sheet_total:
+                            remarks = "Duplicate / Additional Bill Found"
                     
-                        if len(extra_bills):
+                        elif sheet_total > bills_total:
+                            remarks = "Bill Missing"
                     
-                            remarks_list.append(
-                                "Additional Bills: " +
-                                ", ".join(sorted(extra_bills))
-                            )
-                    
-                        if len(missing_bills):
-                    
-                            remarks_list.append(
-                                "Missing Bills: " +
-                                ", ".join(sorted(missing_bills))
-                            )
-                    
-                        remarks = " | ".join(remarks_list)
-                    
-                        if remarks == "":
+                        else:
                             remarks = "-"
                     
                     category_summary.append({
