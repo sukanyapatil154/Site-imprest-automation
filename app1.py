@@ -956,19 +956,11 @@ color:{color};">
             if bills_file:
         
                 bills_df = pd.read_excel(bills_file)
-        
-                bills_df.columns = bills_df.columns.str.strip()
-                # -------------------------------------------------
-                # Track bills found in sub sheets
-                # -------------------------------------------------
-                matched_bills = set()
-        
+                bills_df.columns = bills_df.columns.str.strip()    
                 validation_results = []
-        
                 total_bill_pass = 0
                 total_bill_fail = 0
-
-
+                
                 # --------------------------------------------
                 # Category-wise Bills Summary
                 # --------------------------------------------
@@ -1105,7 +1097,6 @@ color:{color};">
                                 continue
         
                             bill_found = True
-                            matched_bills.add(uploaded_bill)
                             uploaded_amount = safe_float(
                                 bill["Bill Amount"]
                             )
@@ -1173,49 +1164,6 @@ color:{color};">
                             "Status": status
         
                         })
-
-                    # ====================================================
-                    # DUPLICATE BILL CHECK (RUN ONLY ONCE)
-                    # ====================================================
-                    
-                    duplicate_counts = (
-                        bills_df["Bill Number"]
-                        .astype(str)
-                        .str.strip()
-                        .value_counts()
-                    )
-                    
-                    duplicate_bill_numbers = duplicate_counts[
-                        duplicate_counts > 1
-                    ].index
-                    
-                    for bill_no in duplicate_bill_numbers:
-                    
-                        duplicate_rows = bills_df[
-                            bills_df["Bill Number"].astype(str).str.strip() == bill_no
-                        ]
-                    
-                        for _, row in duplicate_rows.iterrows():
-                    
-                            category = str(row["Category"]).strip().upper()
-                    
-                            if category.startswith("CAT-"):
-                                number = int(category.split("-")[1])
-                                category = f"CAT-{number:02d}"
-                    
-                            validation_results.append({
-                    
-                                "Category": category,
-                    
-                                "Bill Number": bill_no,
-                    
-                                "Sheet Amount": "",
-                    
-                                "Bills Workbook Amount": safe_float(row["Bill Amount"]),
-                    
-                                "Status": "⚠ Duplicate Bill"
-                    
-                            })
                 
                 bill_validation_df = pd.DataFrame(validation_results)
 
