@@ -976,12 +976,12 @@ color:{color};">
             )
         
             if bills_file:
-                with st.spinner("⏳ Please wait... Bills Workbook is being validated. This may take 2–3 minutes."):
-                    bills_df = pd.read_excel(bills_file)
-                    bills_df.columns = bills_df.columns.str.strip()    
-                    validation_results = []
-                    total_bill_pass = 0
-                    total_bill_fail = 0
+               
+                bills_df = pd.read_excel(bills_file)
+                bills_df.columns = bills_df.columns.str.strip()    
+                validation_results = []
+                total_bill_pass = 0
+                total_bill_fail = 0
                 
                 # --------------------------------------------
                 # Category-wise Bills Summary
