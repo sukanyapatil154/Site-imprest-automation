@@ -7,7 +7,15 @@ import pandas as pd
 
 
 
-def upload_to_google_sheet(project_name, employee_name, site_name, amount):
+def upload_to_google_sheet(
+    project_name,
+    employee_name,
+    site_name,
+    p_code,
+    month,
+    date,
+    amount
+):
     try:
         scope = [
             "https://www.googleapis.com/auth/spreadsheets",
@@ -23,14 +31,14 @@ def upload_to_google_sheet(project_name, employee_name, site_name, amount):
 
         sheet = client.open("Site Imprest Tracker").worksheet("Sheet1")
 
-        current_date = datetime.now().strftime("%d-%m-%Y")
-
         sheet.append_row([
             project_name,
             employee_name,
             site_name,
-            amount,
-            current_date
+            p_code,
+            month,
+            date,
+            amount
         ])
 
         return True
@@ -271,6 +279,14 @@ if uploaded_file:
         employee_name = get_value_after_label("NAME:")
         employee_id = get_value_after_label("Emp ID:")
         site_name = get_value_after_label("Site Name:")
+        import re
+        
+        p_code = ""
+        
+        match = re.search(r"(P-\d+)", site_name, re.IGNORECASE)
+        
+        if match:
+            p_code = match.group(1).upper()        
 
         account_number = get_value_after_label("Account")
         ifsc = get_value_after_label("IFSC")
@@ -1338,6 +1354,9 @@ color:{color};">
                 project_name,
                 employee_name,
                 site_name,
+                p_code,
+                month,
+                date,
                 expenses_total
             )
         
