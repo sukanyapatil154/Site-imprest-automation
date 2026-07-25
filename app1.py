@@ -277,6 +277,9 @@ if uploaded_file:
         email = get_value_after_label("Email")
         phone = get_value_after_label("Phone")
 
+        month = get_value_after_label("Month")
+        date = get_value_after_label("Date")
+
         advance_total = safe_float(
             get_value_after_label("Advance Total")
         )
@@ -314,6 +317,8 @@ if uploaded_file:
         ("🏛️","IFSC CODE",ifsc,"#FEF2F2"),
         ("📧","EMAIL ID",email,"#EFF6FF"),
         ("📞","PHONE NUMBER",phone,"#ECFDF5")
+        ("🗓️","MONTH",month,"#F0FDF4"),
+        ("📅","DATE",date,"#FEFCE8")
         ]
         
         cols = st.columns(4)
@@ -376,7 +381,7 @@ if uploaded_file:
                     unsafe_allow_html=True
                 )
         
-            if i == 3:
+            if (i + 1) % 4 == 0:
                 st.write("")
                 cols = st.columns(4)
                         
