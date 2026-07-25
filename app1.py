@@ -283,10 +283,11 @@ if uploaded_file:
         
         p_code = ""
         
-        match = re.search(r"(P-\d+)", site_name, re.IGNORECASE)
+        # Extract either P-xxxx or F-xxxx
+        match = re.search(r"([PF]-\d+)", site_name, re.IGNORECASE)
         
         if match:
-            p_code = match.group(1).upper()        
+            p_code = match.group(1).upper()       
 
         account_number = get_value_after_label("Account")
         ifsc = get_value_after_label("IFSC")
