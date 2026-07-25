@@ -1175,7 +1175,7 @@ color:{color};">
                         })
 
                     # ====================================================
-                    # CHECK DUPLICATE / EXTRA BILLS
+                    # DUPLICATE BILL CHECK (RUN ONLY ONCE)
                     # ====================================================
                     
                     duplicate_counts = (
@@ -1185,16 +1185,23 @@ color:{color};">
                         .value_counts()
                     )
                     
-                    for _, bill in bills_df.iterrows():
+                    duplicate_bill_numbers = duplicate_counts[
+                        duplicate_counts > 1
+                    ].index
                     
-                        bill_no = str(bill["Bill Number"]).strip()
+                    for bill_no in duplicate_bill_numbers:
                     
-                        category = str(bill["Category"]).strip().upper()
+                        duplicate_rows = bills_df[
+                            bills_df["Bill Number"].astype(str).str.strip() == bill_no
+                        ]
                     
-                        amount = safe_float(bill["Bill Amount"])
+                        for _, row in duplicate_rows.iterrows():
                     
-                        # Duplicate bill
-                        if duplicate_counts[bill_no] > 1:
+                            category = str(row["Category"]).strip().upper()
+                    
+                            if category.startswith("CAT-"):
+                                number = int(category.split("-")[1])
+                                category = f"CAT-{number:02d}"
                     
                             validation_results.append({
                     
@@ -1204,26 +1211,9 @@ color:{color};">
                     
                                 "Sheet Amount": "",
                     
-                                "Bills Workbook Amount": amount,
+                                "Bills Workbook Amount": safe_float(row["Bill Amount"]),
                     
                                 "Status": "⚠ Duplicate Bill"
-                    
-                            })
-                    
-                        # Bill exists only in Bills Workbook
-                        elif bill_no not in matched_bills:
-                    
-                            validation_results.append({
-                    
-                                "Category": category,
-                    
-                                "Bill Number": bill_no,
-                    
-                                "Sheet Amount": "",
-                    
-                                "Bills Workbook Amount": amount,
-                    
-                                "Status": "⚠ Additional Bill (Not in Sub Sheet)"
                     
                             })
                 
