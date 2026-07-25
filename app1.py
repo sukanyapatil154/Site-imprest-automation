@@ -1252,26 +1252,41 @@ color:{color};">
                                 break
                 
                     difference = abs(sheet_total - bills_total)
-                
+                    
                     if difference < 0.01:
+                    
                         status = "✅ PASS"
+                        remarks = "-"
+                    
                     else:
+                    
                         status = "❌ FAIL"
-                
+                    
+                        if bills_total > sheet_total:
+                            remarks = "Duplicate / Additional Bill Found"
+                    
+                        elif sheet_total > bills_total:
+                            remarks = "Bill Missing"
+                    
+                        else:
+                            remarks = "-"
+                    
                     category_summary.append({
-                
+                    
                         "Category Code": category_code,
-                
+                    
                         "Category": CATEGORY_MAP.get(cat_no),
-                
+                    
                         "Bills Workbook Total": round(bills_total, 2),
-                
+                    
                         "Sub Sheet Total": round(sheet_total, 2),
-                
+                    
                         "Difference": round(difference, 2),
-                
-                        "Status": status
-                
+                    
+                        "Status": status,
+                    
+                        "Remarks": remarks
+                    
                     })
         
                 st.markdown("### 🧾 Bills Validation")
