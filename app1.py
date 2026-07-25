@@ -976,7 +976,7 @@ color:{color};">
             )
         
             if bills_file:
-        
+                with st.spinner("⏳ Please wait... Bills Workbook is being validated. This may take 2–3 minutes."):
                 bills_df = pd.read_excel(bills_file)
                 bills_df.columns = bills_df.columns.str.strip()    
                 validation_results = []
