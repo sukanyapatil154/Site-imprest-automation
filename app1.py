@@ -316,7 +316,7 @@ if uploaded_file:
         ("🏦","ACCOUNT NUMBER",account_number,"#FFF7ED"),
         ("🏛️","IFSC CODE",ifsc,"#FEF2F2"),
         ("📧","EMAIL ID",email,"#EFF6FF"),
-        ("📞","PHONE NUMBER",phone,"#ECFDF5")
+        ("📞","PHONE NUMBER",phone,"#ECFDF5"),
         ("🗓️","MONTH",month,"#F0FDF4"),
         ("📅","DATE",date,"#FEFCE8")
         ]
